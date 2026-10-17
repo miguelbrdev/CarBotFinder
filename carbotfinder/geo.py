@@ -198,10 +198,10 @@ _TRAILING_ARTICLE = re.compile(
 # Fallback patterns for portal-specific abbreviations ("Sta. C. Tenerife", "Palmas (Las)", ...).
 _PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"tenerife"), "santa cruz de tenerife"),
-    (re.compile(r"palmas"), "las palmas"),
+    (re.compile(r"\bpalmas\b"), "las palmas"),
     (re.compile(r"balear"), "baleares"),
-    (re.compile(r"coruna"), "a coruna"),
-    (re.compile(r"rioja"), "la rioja"),
+    (re.compile(r"\bcoruna\b"), "a coruna"),
+    (re.compile(r"\brioja\b"), "la rioja"),
 )
 
 
