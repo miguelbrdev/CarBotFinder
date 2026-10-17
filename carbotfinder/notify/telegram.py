@@ -17,6 +17,11 @@ _API = "https://api.telegram.org/bot{token}/{method}"
 _SELLER_LABEL = {"private": "particular", "dealer": "profesional"}
 
 
+def _esc(text: str) -> str:
+    """Telegram HTML only needs <, > and & escaped; quotes are fine outside tags."""
+    return html.escape(text, quote=False)
+
+
 def _fmt_int(value: int) -> str:
     return f"{value:,}".replace(",", ".")
 
@@ -31,13 +36,17 @@ def format_listing(listing: Listing, search_name: str) -> str:
     if listing.city and listing.city.lower() != where.lower():
         where = f"{listing.city} ({where})"
 
-    seller = _SELLER_LABEL.get(listing.seller_type or "", "vendedor ?")
+    seller = _SELLER_LABEL.get(listing.seller_type or "")
+    place_parts = [f"📍 {_esc(where)}"]
+    if seller:
+        place_parts.append(f"👤 {seller}")
+    place_parts.append(listing.portal)
     lines = [
-        f"🚗 <b>{html.escape(listing.title.strip())}</b>",
+        f"🚗 <b>{_esc(listing.title.strip())}</b>",
         f"💶 {price}  ·  📅 {year}  ·  🛣 {km}",
-        f"📍 {html.escape(where)}  ·  👤 {seller}  ·  {listing.portal}",
-        f"🔗 {html.escape(listing.url)}",
-        f"<i>búsqueda: {html.escape(search_name)}</i>",
+        "  ·  ".join(place_parts),
+        f"🔗 {_esc(listing.url)}",
+        f"<i>búsqueda: {_esc(search_name)}</i>",
     ]
     return "\n".join(lines)
 

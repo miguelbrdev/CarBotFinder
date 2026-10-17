@@ -119,12 +119,90 @@ _ALIASES: dict[str, str] = {
 }
 
 
+# Normalised name -> human-readable name (used when a portal gives us only a postal code).
+_DISPLAY: dict[str, str] = {
+    "alava": "Álava",
+    "albacete": "Albacete",
+    "alicante": "Alicante",
+    "almeria": "Almería",
+    "avila": "Ávila",
+    "badajoz": "Badajoz",
+    "baleares": "Illes Balears",
+    "barcelona": "Barcelona",
+    "burgos": "Burgos",
+    "caceres": "Cáceres",
+    "cadiz": "Cádiz",
+    "castellon": "Castellón",
+    "ciudad real": "Ciudad Real",
+    "cordoba": "Córdoba",
+    "a coruna": "A Coruña",
+    "cuenca": "Cuenca",
+    "girona": "Girona",
+    "granada": "Granada",
+    "guadalajara": "Guadalajara",
+    "gipuzkoa": "Gipuzkoa",
+    "huelva": "Huelva",
+    "huesca": "Huesca",
+    "jaen": "Jaén",
+    "leon": "León",
+    "lleida": "Lleida",
+    "la rioja": "La Rioja",
+    "lugo": "Lugo",
+    "madrid": "Madrid",
+    "malaga": "Málaga",
+    "murcia": "Murcia",
+    "navarra": "Navarra",
+    "ourense": "Ourense",
+    "asturias": "Asturias",
+    "palencia": "Palencia",
+    "las palmas": "Las Palmas",
+    "pontevedra": "Pontevedra",
+    "salamanca": "Salamanca",
+    "santa cruz de tenerife": "Santa Cruz de Tenerife",
+    "cantabria": "Cantabria",
+    "segovia": "Segovia",
+    "sevilla": "Sevilla",
+    "soria": "Soria",
+    "tarragona": "Tarragona",
+    "teruel": "Teruel",
+    "toledo": "Toledo",
+    "valencia": "Valencia",
+    "valladolid": "Valladolid",
+    "bizkaia": "Bizkaia",
+    "zamora": "Zamora",
+    "zaragoza": "Zaragoza",
+    "ceuta": "Ceuta",
+    "melilla": "Melilla",
+}
+
+
+def province_display(normalised: str | None) -> str | None:
+    """Human-readable name for a normalised province (``"a coruna"`` -> ``"A Coruña"``)."""
+    if not normalised:
+        return None
+    return _DISPLAY.get(normalised, normalised.title())
+
+
 def _basic_normalise(text: str) -> str:
     stripped = unicodedata.normalize("NFKD", text)
     ascii_only = "".join(ch for ch in stripped if not unicodedata.combining(ch))
     lowered = ascii_only.lower().strip()
     lowered = re.sub(r"^(provincia de|prov\.)\s+", "", lowered)
     return re.sub(r"\s+", " ", lowered)
+
+
+_TRAILING_ARTICLE = re.compile(
+    r"^(?P<name>.+?)\s*[(,]\s*(?P<article>a|el|la|las|les|los|illes)\s*\)?$"
+)
+
+# Fallback patterns for portal-specific abbreviations ("Sta. C. Tenerife", "Palmas (Las)", ...).
+_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"tenerife"), "santa cruz de tenerife"),
+    (re.compile(r"palmas"), "las palmas"),
+    (re.compile(r"balear"), "baleares"),
+    (re.compile(r"coruna"), "a coruna"),
+    (re.compile(r"rioja"), "la rioja"),
+)
 
 
 def normalise_province(text: str | None) -> str | None:
@@ -134,7 +212,16 @@ def normalise_province(text: str | None) -> str | None:
     base = _basic_normalise(text)
     if not base:
         return None
-    return _ALIASES.get(base, base)
+    if base in _ALIASES:
+        return _ALIASES[base]
+    article = _TRAILING_ARTICLE.match(base)
+    if article:  # "coruna (a)" -> "a coruna", "palmas, las" -> "las palmas"
+        candidate = f"{article.group('article')} {article.group('name')}".strip()
+        base = _ALIASES.get(candidate, candidate)
+    for pattern, canonical in _PATTERNS:
+        if pattern.search(base):
+            return canonical
+    return base
 
 
 def province_from_postal_code(postal_code: str | None) -> str | None:

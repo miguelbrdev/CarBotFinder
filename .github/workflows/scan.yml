@@ -1,0 +1,65 @@
+name: scan
+
+on:
+  schedule:
+    # Nominal cadence; GitHub may delay or skip runs under load (see README).
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print matches instead of sending Telegram messages"
+        type: boolean
+        default: false
+      seed:
+        description: "Force seed mode (mark everything as seen, notify only very recent ads)"
+        type: boolean
+        default: false
+
+# Never run two scans at once: they would race on the state cache and double-notify.
+concurrency:
+  group: scan
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --no-dev --frozen
+
+      - name: Restore state
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: state-${{ github.run_id }}
+          restore-keys: |
+            state-
+
+      - name: Scan portals
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          ARGS="-c config.yaml -v"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ "${{ inputs.seed }}" = "true" ]; then ARGS="$ARGS --seed"; fi
+          uv run carbotfinder run $ARGS
+
+      - name: Save state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: state-${{ github.run_id }}

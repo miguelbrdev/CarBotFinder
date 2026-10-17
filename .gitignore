@@ -1,6 +1,5 @@
-# Secrets and local config
+# Secrets
 .env
-config.yaml
 
 # Runtime state
 state/

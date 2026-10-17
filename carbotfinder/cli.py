@@ -109,7 +109,16 @@ def _run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _force_utf8_console() -> None:
+    """Windows consoles default to a legacy code page that cannot print the emoji we log."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def main(argv: list[str] | None = None) -> int:
+    _force_utf8_console()
     parser = build_parser()
     args = parser.parse_args(argv)
     _configure_logging(args.verbose)

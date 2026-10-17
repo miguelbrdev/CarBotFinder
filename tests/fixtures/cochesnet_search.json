@@ -1,0 +1,233 @@
+{
+ "items": [
+  {
+   "id": "70282058",
+   "creationDate": "2026-03-26T16:50:10Z",
+   "title": "MAZDA MX-5 Active 1.8",
+   "url": "/mazda-mx-5-active-18-2p-gasolina-2006-en-valencia-70282058-covo.aspx",
+   "price": {
+    "amount": 10900,
+    "taxTypeId": 1,
+    "hasTaxes": true,
+    "indicator": {
+     "average": 11300,
+     "rank": 3
+    },
+    "hasOnlineFinancing": false,
+    "hasReservation": true
+   },
+   "seller": {
+    "name": "redacted",
+    "isProfessional": true,
+    "contractId": "120156",
+    "pack": {
+     "legacyId": 21,
+     "type": "advance"
+    }
+   },
+   "km": 157295,
+   "year": 2008,
+   "cubicCapacity": 1798,
+   "provinceIds": [
+    46
+   ],
+   "mainProvince": "Valencia",
+   "location": {
+    "provinceIds": [
+     46
+    ],
+    "regionId": 19,
+    "regionLiteral": "Comunitat Valenciana",
+    "mainProvince": "Valencia",
+    "mainProvinceId": 46,
+    "cityId": 46159,
+    "cityLiteral": "Manises"
+   },
+   "resources": [
+    {
+     "type": "IMAGE",
+     "url": "https://a.ccdn.es/cnet/vehicles/19743338/fa0ccaa3-10b2-4168-bf58-c8a1a5a616c5.jpg"
+    }
+   ],
+   "makeId": 27,
+   "make": "MAZDA",
+   "modelId": 237,
+   "model": "MX-5",
+   "fuelTypeId": 2,
+   "fuelType": "Gasolina",
+   "bodyTypeId": 3,
+   "hp": 126,
+   "warranty": {
+    "id": 2,
+    "months": 12
+   },
+   "isFinanced": false,
+   "isCertified": false,
+   "isProfessional": true,
+   "publishedDate": "2026-07-22T16:50:10Z",
+   "hasUrge": false,
+   "offerType": {
+    "id": 0,
+    "literal": "Ocasión"
+   },
+   "phone": "redacted",
+   "hidePhone": false,
+   "environmentalLabel": "C",
+   "drivenWheelsId": 4,
+   "contractId": "120156",
+   "pack": {
+    "legacyId": 21,
+    "type": "advance"
+   },
+   "transmissionTypeId": 2
+  },
+  {
+   "id": "71727319",
+   "creationDate": "2026-10-12T16:29:07Z",
+   "title": "MAZDA MX-5 Active 1.8",
+   "url": "/mazda-mx-5-active-18-2p-gasolina-2006-en-ciudad-real-71727319-covo.aspx",
+   "price": {
+    "amount": 10790,
+    "taxTypeId": 1,
+    "hasTaxes": true,
+    "indicator": {
+     "average": 10900,
+     "rank": 3
+    },
+    "hasOnlineFinancing": false,
+    "hasReservation": false
+   },
+   "seller": {
+    "name": "redacted",
+    "isProfessional": true,
+    "contractId": "130868",
+    "pack": {
+     "legacyId": 18,
+     "type": "start"
+    }
+   },
+   "km": 116000,
+   "year": 2008,
+   "cubicCapacity": 1798,
+   "provinceIds": [
+    13
+   ],
+   "mainProvince": "Ciudad Real",
+   "location": {
+    "provinceIds": [
+     13
+    ],
+    "regionId": 8,
+    "regionLiteral": "Castilla-La Mancha",
+    "mainProvince": "Ciudad Real",
+    "mainProvinceId": 13,
+    "cityId": 13034,
+    "cityLiteral": "Ciudad Real"
+   },
+   "resources": [
+    {
+     "type": "IMAGE",
+     "url": "https://a.ccdn.es/cnet/vehicles/20949065/a371e870-c705-41fb-aabf-daa565e4cdd9.jpg"
+    }
+   ],
+   "makeId": 27,
+   "make": "MAZDA",
+   "modelId": 237,
+   "model": "MX-5",
+   "fuelTypeId": 2,
+   "fuelType": "Gasolina",
+   "bodyTypeId": 3,
+   "hp": 126,
+   "warranty": {
+    "id": 2,
+    "months": 12
+   },
+   "isFinanced": false,
+   "isCertified": false,
+   "isProfessional": true,
+   "publishedDate": "2026-10-12T16:29:07Z",
+   "hasUrge": false,
+   "offerType": {
+    "id": 0,
+    "literal": "Ocasión"
+   },
+   "phone": "redacted",
+   "hidePhone": false,
+   "environmentalLabel": "C",
+   "drivenWheelsId": 4,
+   "contractId": "130868",
+   "pack": {
+    "legacyId": 18,
+    "type": "start"
+   },
+   "transmissionTypeId": 2
+  },
+  {
+   "id": "71647923",
+   "creationDate": "2026-10-01T15:30:25Z",
+   "title": "MAZDA MX5 1.6 16v Active",
+   "url": "/mazda-mx5-16-16v-active-2p-gasolina-2005-en-alicante-71647923-covo.aspx",
+   "price": {
+    "amount": 11500,
+    "taxTypeId": 1,
+    "hasTaxes": true,
+    "hasReservation": false
+   },
+   "seller": {
+    "name": "redacted",
+    "isProfessional": false,
+    "contractId": "1"
+   },
+   "km": 97000,
+   "year": 2005,
+   "cubicCapacity": 1598,
+   "provinceIds": [
+    3
+   ],
+   "mainProvince": "Alicante",
+   "location": {
+    "provinceIds": [
+     3
+    ],
+    "regionId": 19,
+    "regionLiteral": "Comunitat Valenciana",
+    "mainProvince": "Alicante",
+    "mainProvinceId": 3,
+    "cityId": 3099,
+    "cityLiteral": "Orihuela"
+   },
+   "resources": [
+    {
+     "type": "IMAGE",
+     "url": "https://a.ccdn.es/cnet/2026/10/01/71647923/2134654872_g.jpg"
+    }
+   ],
+   "makeId": 27,
+   "make": "MAZDA",
+   "modelId": 237,
+   "model": "MX5",
+   "fuelTypeId": 2,
+   "fuelType": "Gasolina",
+   "bodyTypeId": 3,
+   "hp": 110,
+   "isFinanced": false,
+   "isCertified": false,
+   "isProfessional": false,
+   "publishedDate": "2026-10-01T15:33:26Z",
+   "hasUrge": false,
+   "offerType": {
+    "id": 0,
+    "literal": "Ocasión"
+   },
+   "phone": "redacted",
+   "hidePhone": false,
+   "drivenWheelsId": 4,
+   "contractId": "1",
+   "transmissionTypeId": 2
+  }
+ ],
+ "meta": {
+  "totalPages": 1,
+  "totalResults": 3
+ }
+}

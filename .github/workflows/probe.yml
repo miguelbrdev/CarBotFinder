@@ -1,0 +1,23 @@
+name: probe portals
+
+# Manual check: does each portal answer from a GitHub-hosted runner's IP?
+# Runs a dry scan (no Telegram, no state) and prints the per-portal summary.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --no-dev --frozen
+      - name: Dry scan from this runner
+        run: uv run carbotfinder run -c config.yaml --dry-run --no-seed --state /tmp/probe.sqlite -v 2>&1 | tail -n 40

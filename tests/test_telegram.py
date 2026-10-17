@@ -31,6 +31,12 @@ def test_format_listing_handles_missing() -> None:
         "mx5",
     )
     assert "precio ?" in text and "año ?" in text and "km ?" in text and "ubicación ?" in text
+    assert "👤" not in text  # unknown seller type is simply omitted
+
+
+def test_format_listing_keeps_apostrophes() -> None:
+    text = format_listing(make_listing(city="Santa Cristina D'Aro", province_raw="Girona"), "mx5")
+    assert "Santa Cristina D'Aro (Girona)" in text
 
 
 @respx.mock

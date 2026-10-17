@@ -14,7 +14,7 @@ import httpx
 from carbotfinder import http
 from carbotfinder.config import SearchConfig
 from carbotfinder.errors import PortalError
-from carbotfinder.geo import province_from_postal_code
+from carbotfinder.geo import province_display, province_from_postal_code
 from carbotfinder.models import Listing, SellerType
 from carbotfinder.portals._embedded import extract_next_data, parse_int_text, slugify
 from carbotfinder.portals.base import Portal, register
@@ -61,6 +61,19 @@ def parse(html: str) -> list[Listing]:
     return [listing for item in listings if (listing := _to_listing(item)) is not None]
 
 
+def _build_title(title: str, make: str, version: str) -> str:
+    """``("Mazda MX-5", "Mazda", "MX-5 Roadster 2.0 Sportive Sportive")`` ->
+    ``"Mazda MX-5 Roadster 2.0 Sportive"``."""
+    base = version.strip() or title.strip()
+    if make and not base.lower().startswith(make.lower()):
+        base = f"{make} {base}"
+    words: list[str] = []
+    for word in base.split():
+        if not words or words[-1].lower() != word.lower():
+            words.append(word)
+    return " ".join(words)
+
+
 def _to_listing(item: dict[str, Any]) -> Listing | None:
     item_id = item.get("id")
     path = item.get("url")
@@ -71,10 +84,11 @@ def _to_listing(item: dict[str, Any]) -> Listing | None:
     seller = item.get("seller") or {}
     registration = str((item.get("tracking") or {}).get("firstRegistration") or "")
     year_match = _REGISTRATION.search(registration)
-    title = str(item.get("title") or "").strip()
-    version = str(vehicle.get("modelVersionInput") or "").strip()
-    if version and version.lower() not in title.lower():
-        title = f"{title} {version}".strip()
+    title = _build_title(
+        str(item.get("title") or ""),
+        str(vehicle.get("make") or ""),
+        str(vehicle.get("modelVersionInput") or ""),
+    )
     zip_code = location.get("zip")
     return Listing(
         portal=NAME,
@@ -85,7 +99,7 @@ def _to_listing(item: dict[str, Any]) -> Listing | None:
         year=int(year_match.group(1)) if year_match else None,
         km=parse_int_text(vehicle.get("mileageInKm")),
         province=province_from_postal_code(zip_code),
-        province_raw=None,
+        province_raw=province_display(province_from_postal_code(zip_code)),
         city=location.get("city"),
         published_at=None,
         seller_type=_SELLER.get(str(seller.get("type") or "").lower()),
