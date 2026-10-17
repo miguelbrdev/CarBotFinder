@@ -97,7 +97,7 @@ Reglas de diseño:
 uv sync                                  # instalar
 uv run carbotfinder run --once --dry-run # una pasada sin notificar
 uv run carbotfinder run --once --seed    # marca lo actual como visto sin avisar (primer arranque)
-uv run pytest                            # tests
+uv run pytest                            # tests (añade --cov --cov-report=term-missing para cobertura)
 uv run ruff check . && uv run ruff format --check .
 ```
 
@@ -105,6 +105,6 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
 
 ## Estado del proyecto
 
-- 2026-10-17: Fases 0-5 hechas en local (núcleo, 6 portales, workflows, README, Docker). 97 tests.
+- 2026-10-17: Fases 0-5 hechas en local (núcleo, 6 portales, workflows, README, Docker). 115 tests, cobertura 85%.
   Pendiente del usuario: crear bot de Telegram, repo público en GitHub, secretos, y lanzar `scan` con
   `seed=true`. Después: ejecutar `probe portals` y anotar aquí qué portales responden desde GitHub.

@@ -119,7 +119,7 @@ price are dropped; ads without year or mileage are kept (better a look than a mi
 
 ```bash
 uv sync
-uv run pytest
+uv run pytest --cov --cov-report=term-missing
 uv run ruff check . && uv run ruff format --check .
 uv run mypy carbotfinder
 uv run carbotfinder run --dry-run --no-seed --state /tmp/x.sqlite -vv   # live, verbose

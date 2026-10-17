@@ -4,9 +4,17 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Annotated
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    model_validator,
+)
 
 from carbotfinder.errors import ConfigError
 from carbotfinder.geo import ISLAND_PROVINCES, normalise_province
@@ -26,37 +34,43 @@ def _all_seller_types() -> list[SellerType]:
     return ["private", "dealer"]
 
 
+def _check_portal(name: str) -> str:
+    if name not in ALL_PORTALS:
+        raise ValueError(f"unknown portal {name!r}; valid: {list(ALL_PORTALS)}")
+    return name
+
+
+PortalName = Annotated[str, AfterValidator(_check_portal)]
+NonEmpty = Annotated[str, Field(min_length=1)]
+
+# Unknown keys are errors (typos in YAML must not pass silently); surrounding whitespace is
+# stripped so "  Mazda " never leaks into slugs or API parameters.
+_STRICT = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+
 class TelegramConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = _STRICT
 
     token_env: str = "TELEGRAM_BOT_TOKEN"
     chat_id_env: str = "TELEGRAM_CHAT_ID"
 
 
 class Defaults(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = _STRICT
 
     excluded_provinces: list[str] = Field(default_factory=lambda: sorted(ISLAND_PROVINCES))
     seed_window_hours: int = Field(default=2, ge=0)
-    portals: list[str] = Field(default_factory=lambda: list(ALL_PORTALS))
+    portals: list[PortalName] = Field(default_factory=lambda: list(ALL_PORTALS))
     error_alert_after_failures: int = Field(default=3, ge=1)
     error_alert_min_interval_hours: int = Field(default=6, ge=0)
 
-    @field_validator("portals")
-    @classmethod
-    def _known_portals(cls, value: list[str]) -> list[str]:
-        unknown = [p for p in value if p not in ALL_PORTALS]
-        if unknown:
-            raise ValueError(f"unknown portals: {unknown}; valid: {list(ALL_PORTALS)}")
-        return value
-
 
 class SearchConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = _STRICT
 
-    name: str
-    make: str
-    model: str
+    name: NonEmpty
+    make: NonEmpty
+    model: NonEmpty
     year_min: int | None = None
     year_max: int | None = None
     price_min: int | None = Field(default=None, ge=0)
@@ -65,20 +79,10 @@ class SearchConfig(BaseModel):
     km_max: int | None = Field(default=None, ge=0)
     title_exclude: list[str] = Field(default_factory=list)
     title_include: list[str] = Field(default_factory=list)
-    seller_types: list[SellerType] = Field(default_factory=_all_seller_types)
+    seller_types: list[SellerType] = Field(default_factory=_all_seller_types, min_length=1)
     include_reserved: bool = False
-    portals: list[str] | None = None
+    portals: list[PortalName] | None = None
     excluded_provinces: list[str] | None = None
-
-    @field_validator("portals")
-    @classmethod
-    def _known_portals(cls, value: list[str] | None) -> list[str] | None:
-        if value is None:
-            return None
-        unknown = [p for p in value if p not in ALL_PORTALS]
-        if unknown:
-            raise ValueError(f"unknown portals: {unknown}; valid: {list(ALL_PORTALS)}")
-        return value
 
     @model_validator(mode="after")
     def _ranges(self) -> SearchConfig:
@@ -96,25 +100,21 @@ class SearchConfig(BaseModel):
             raise ValueError("price_min must be <= price_max")
         if self.km_min is not None and self.km_max is not None and self.km_min > self.km_max:
             raise ValueError("km_min must be <= km_max")
-        if not self.seller_types:
-            raise ValueError("seller_types must not be empty")
         return self
 
 
 class AppConfig(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = _STRICT
 
     telegram: TelegramConfig = Field(default_factory=TelegramConfig)
     defaults: Defaults = Field(default_factory=Defaults)
-    searches: list[SearchConfig]
+    searches: list[SearchConfig] = Field(min_length=1)
 
     @model_validator(mode="after")
     def _unique_names(self) -> AppConfig:
         names = [s.name for s in self.searches]
         if len(names) != len(set(names)):
             raise ValueError(f"duplicate search names: {names}")
-        if not self.searches:
-            raise ValueError("at least one search is required")
         return self
 
     def portals_for(self, search: SearchConfig) -> list[str]:

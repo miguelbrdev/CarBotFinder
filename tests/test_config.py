@@ -27,8 +27,22 @@ def test_search_overrides(search: SearchConfig) -> None:
 
 
 def test_rejects_unknown_portal() -> None:
-    with pytest.raises(ValueError, match="unknown portals"):
+    with pytest.raises(ValueError, match="unknown portal 'ebay'"):
         SearchConfig(name="x", make="a", model="b", portals=["ebay"])
+
+
+def test_strips_whitespace_and_rejects_empty_names() -> None:
+    search = SearchConfig(name=" x ", make="  Mazda ", model=" MX-5")
+    assert (search.name, search.make, search.model) == ("x", "Mazda", "MX-5")
+    with pytest.raises(ValueError, match="make"):
+        SearchConfig(name="x", make="   ", model="b")
+
+
+def test_rejects_empty_seller_types_and_searches() -> None:
+    with pytest.raises(ValueError, match="seller_types"):
+        SearchConfig(name="x", make="a", model="b", seller_types=[])
+    with pytest.raises(ValueError, match="searches"):
+        AppConfig(searches=[])
 
 
 def test_rejects_bad_ranges() -> None:

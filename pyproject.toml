@@ -19,6 +19,7 @@ carbotfinder = "carbotfinder.cli:main"
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "pytest-cov>=5.0",
     "respx>=0.21",
     "ruff>=0.6",
     "mypy>=1.10",
@@ -50,4 +51,13 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q -ra"
+
+[tool.coverage.run]
+source = ["carbotfinder"]
+branch = true
+
+[tool.coverage.report]
+skip_covered = false
+show_missing = true
+exclude_lines = ['pragma: no cover', 'if __name__ == .__main__.:', '^\s*\.\.\.\s*$']
