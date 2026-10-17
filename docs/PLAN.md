@@ -69,6 +69,20 @@ anuncios con `published_at` dentro de las últimas 2 h y marca el resto como vis
 
 ### 4.2 coches.net (prioridad 2, líder en volumen, muchos concesionarios)
 
+**Resultado (verificado 2026-10-17, implementado):** la página SSR no admite ordenar por fecha
+(`sortBy` siempre `relevance`; los parámetros `fi=`/`or=` no cambian nada). La app web usa un gateway
+JSON: `POST https://web.gw.coches.net/search` con cabeceras `x-adevinta-channel: web-desktop` y
+`x-schibsted-tenant: coches` (sin ellas: 400). Cuerpo:
+`{"pagination":{"page":1,"size":100},"sort":{"order":"desc","term":"relevance"},"filters":{"categories":{"category1Ids":[2500]},"price":{"to":14000},"km":{"to":180000},"year":{"from":2005,"to":2015},"vehicles":[{"makeId":27,"modelId":237}]}}`.
+Los nombres de marca/modelo sin ids devuelven 0 resultados; ids vía `GET /makes?categoryId=2500` y
+`GET /models?makeId=27&categoryId=2500` (`{"items":[{"id","label"}]}`). Solo acepta `term: relevance`
+(`publishedDate`/`SortDate` → 400). Respuesta: `{"items":[...],"meta":{"totalPages","totalResults"}}`
+con `publishedDate`, `creationDate`, `isProfessional`, `price.hasReservation`, `location.mainProvince`
+(ojo: abreviado, p. ej. "Sta. C. Tenerife", "Coruña (A)"). El host antiguo `ms-mt--api-web.spain.advgo.net`
+ya no existe (502).
+
+Notas originales de la investigación:
+
 - URL: `https://www.coches.net/segunda-mano/mazda/mx-5/` (también `/mazda-mx-5/segunda-mano/`).
   Paginación `?pg=N` (35 anuncios/página). **Por verificar (Fase 2):** parámetros de URL para ordenar por
   fecha y para filtros (`initialSearch` muestra `kms`, `price`, `year`, `onlyPeninsula`, `provinceIds`).
@@ -79,6 +93,10 @@ anuncios con `published_at` dentro de las últimas 2 h y marca el resto como vis
 - Sin bloqueo observado (CloudFront, 200).
 
 ### 4.3 milanuncios (prioridad 3, particulares)
+
+**Resultado:** `orden=date` y `hasta=` (precio máx.) se reflejan en `adSearchParams`; `kmshasta`,
+`anodesde`, `anohasta` no (se filtra en local). 41 anuncios por página, `pagination.nextToken` para seguir.
+
 
 - URL: `https://www.milanuncios.com/mazda-de-segunda-mano/mx-5.htm?orden=date&fromSearch=1`.
   **Por verificar:** parámetros `desde`, `hasta` (precio), `kmsdesde`, `kmshasta`, `anodesde`, `anohasta`.
@@ -100,6 +118,11 @@ anuncios con `published_at` dentro de las últimas 2 h y marca el resto como vis
 
 ### 4.5 coches.com (prioridad 5, casi todo concesionarios)
 
+**Resultado:** la URL del anuncio es `https://www.coches.com/coches-segunda-mano/ocasion-<slug>.htm?id=<visibleId>`
+y se toma de los `<a href>` de la propia página. Sin parámetros de filtro ni orden verificados.
+Importante: la respuesta llega en brotli; httpx la descodifica solo si no se fuerza `Accept-Encoding`.
+
+
 - URL: `https://www.coches.com/coches-segunda-mano/mazda-mx-5.htm`. **Por verificar:** filtros por query string.
 - Datos: `__NEXT_DATA__` → `props.pageProps.classifieds.classifiedList[]` (20).
 - Campos: `id`, `make.name`, `model.name`, `version.name`, `mileage.amount`, `price.amount`, `priceOffer`,
@@ -108,6 +131,10 @@ anuncios con `published_at` dentro de las últimas 2 h y marca el resto como vis
 - Protegido por Imperva/Incapsula (cookies `visid_incap_*`), aun así 200 a curl. Riesgo medio-alto de 403 desde datacenter.
 
 ### 4.6 Autocasión (prioridad 6, concesionarios)
+
+**Resultado:** se parsean las tarjetas HTML (`data-ad`, `<h2>`, `<p class="precio">`,
+`<ul class="supplementary">` = año, combustible, km, provincia, municipio). Clase `con-concesionario` = profesional.
+
 
 - URL: `https://www.autocasion.com/coches-segunda-mano/mazda-mx-5-ocasion?orden=fecha`.
 - Datos: un `<script type="application/ld+json">` con lista de 25 `Product` → `offers.{price,url}`,
@@ -214,6 +241,13 @@ portal dentro del módulo; si un portal no conoce el modelo, falla con mensaje c
 Orden de los portales en Fase 2 justificado por valor para el usuario: Wallapop y milanuncios concentran
 particulares (mejores precios para un MX-5 de hasta 14k); coches.net es el mayor volumen; el resto es
 mayoritariamente concesionario.
+
+## 6.1 Estado de ejecución (2026-10-17)
+
+Fases 0-5 completadas en local; pasada en vivo (`--dry-run`) con los seis portales: Wallapop 4→1,
+coches.net 24→22, milanuncios 41→8, AutoScout24 7→7, coches.com 20→0, Autocasión 25→1
+(obtenidos→coinciden con el filtro MX-5 NC). Pendiente: despliegue real en GitHub Actions (Fase 3
+necesita el repo y los secretos del usuario) y sondeo de IPs de GitHub con el workflow `probe portals`.
 
 ## 7. Riesgos y mitigaciones
 

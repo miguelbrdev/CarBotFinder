@@ -31,21 +31,21 @@ El código debe ser genérico (varias búsquedas configurables en YAML), no un s
 | Dependencias | `uv` + `pyproject.toml` | Rápido y reproducible en CI |
 | Calidad | `ruff` (lint+format), `pytest`, `mypy` en modo estricto razonable | Portfolio |
 
-## Portales (estado verificado el 2026-10-17 con curl desde conexión doméstica)
+## Portales (verificados en vivo el 2026-10-17 desde IP residencial; los seis responden)
 
-| Portal | Cómo se obtienen datos | Anti-bot visto | Prioridad |
-|---|---|---|---|
-| Wallapop | JSON `GET api.wallapop.com/api/v3/search` (`category_ids=100`, `brand`, `model`, `max_km`, `max_sale_price`, `order_by=newest`) | CloudFront, respondió 200 sin cookies | 1 |
-| coches.net | HTML SSR, `window.__INITIAL_PROPS__ = JSON.parse("...")` → `initialResults.items` (35/página, `?pg=N`) | CloudFront, 200 | 2 |
-| milanuncios | HTML SSR, mismo patrón `__INITIAL_PROPS__` → `adListPagination.adList.ads` (41/página) | CloudFront, 200 | 3 |
-| AutoScout24.es | HTML, `<script id="__NEXT_DATA__">` → `props.pageProps.listings`; filtros en URL (`kmto`, `priceto`, `fregfrom`, `fregto`, `sort=age&desc=1`) | 200 | 4 |
-| coches.com | HTML, `__NEXT_DATA__` → `pageProps.classifieds.classifiedList` (20/página) | Imperva/Incapsula presente, pero 200 a curl | 5 |
-| Autocasión | HTML + JSON-LD (`Product`/`Car`, 25/página), `?orden=fecha` | Cloudflare, 200 | 6 |
-| motor.es | Agregador de stock de concesionarios, Cloudflare | No evaluado | Futuro |
+| Portal | Cómo se obtienen datos | Notas |
+|---|---|---|
+| Wallapop | JSON `GET api.wallapop.com/api/v3/search` (`category_ids=100`, `brand`, `model`, `max_km`, `max_sale_price`, `order_by=newest`) | año no se filtra en servidor; `seller_type` desconocido |
+| coches.net | JSON `POST web.gw.coches.net/search` con cabeceras `x-adevinta-channel: web-desktop` y `x-schibsted-tenant: coches`; exige `makeId`/`modelId` (lookup en `/makes` y `/models?makeId=`) | solo orden `relevance`; filtros precio/km/año en servidor; `size=100` cubre todo |
+| milanuncios | HTML SSR `window.__INITIAL_PROPS__` → `adListPagination.adList.ads` | `orden=date` y `hasta=` funcionan; km/año vienen como texto en `tags` |
+| AutoScout24.es | `__NEXT_DATA__` → `props.pageProps.listings`; filtros y `sort=age&desc=1` en URL | sin fecha de publicación ni provincia (se deriva del CP) |
+| coches.com | `__NEXT_DATA__` → `pageProps.classifieds.classifiedList` | Imperva, pero sirve HTML; URL del anuncio desde los `<a href="...?id=">` de la página |
+| Autocasión | HTML `<article class="anuncio">` + `<ul class="supplementary">` | `?orden=fecha`; todo concesionarios |
 
-Las URLs exactas, los campos y los ejemplos de respuesta están en `docs/PLAN.md`.
-Riesgo principal: las IPs de GitHub Actions (datacenter) pueden recibir 403 donde la IP doméstica recibe 200.
-Se comprueba en la Fase 3 con un workflow de sondeo antes de dar un portal por bueno.
+Lección aprendida: no fijar `Accept-Encoding` a mano; httpx no descodifica brotli sin el paquete
+`brotli` y el HTML llega ilegible (coches.com y Autocasión fallaban por eso).
+Riesgo principal pendiente: IPs de GitHub Actions. Se comprueba con el workflow `probe portals`.
+Detalles y ejemplos de respuesta en `docs/PLAN.md`.
 
 ## Arquitectura (resumen)
 
@@ -105,4 +105,6 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
 
 ## Estado del proyecto
 
-- 2026-10-17: investigación hecha, plan escrito, sin código aún. Siguiente paso: Fase 0 y 1 del PLAN.
+- 2026-10-17: Fases 0-5 hechas en local (núcleo, 6 portales, workflows, README, Docker). 97 tests.
+  Pendiente del usuario: crear bot de Telegram, repo público en GitHub, secretos, y lanzar `scan` con
+  `seed=true`. Después: ejecutar `probe portals` y anotar aquí qué portales responden desde GitHub.

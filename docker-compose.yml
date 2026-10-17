@@ -1,0 +1,8 @@
+services:
+  carbotfinder:
+    build: .
+    env_file: .env
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./state:/data
+    restart: unless-stopped
