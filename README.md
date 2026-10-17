@@ -73,8 +73,12 @@ config.yaml ──▶ runner ──▶ portal.fetch() ──▶ parse() ──�
   `POST https://api.github.com/repos/<you>/CarBotFinder/actions/workflows/scan.yml/dispatches`
   with body `{"ref":"main"}` and a fine-grained token (*Actions: read and write*) every 5 minutes.
 - Scheduled workflows are disabled after 60 days without commits. Any commit re-enables them.
-- Some portals may block datacenter IPs in the future. If a portal keeps failing from Actions,
-  disable it in `config.yaml` or run the bot at home (below).
+- **milanuncios and Autocasión return 403 to GitHub's IP ranges** (checked 2026-10-17), so `scan.yml`
+  only runs the other four portals (`--portal ...`). Both work from a residential connection: run
+  `carbotfinder run --portal milanuncios --portal autocasion --interval 300` at home (below) to cover
+  them. State is per machine, and the portals do not overlap, so you get no duplicate alerts.
+- If another portal starts failing from Actions, remove it from the `--portal` list in `scan.yml`
+  or run the bot at home.
 
 ## Run at home (PC, Raspberry Pi, NAS)
 

@@ -48,7 +48,10 @@ Lección aprendida (2026-10-17): milanuncios (Imperva) devolvió la página "Par
 HTTP 200 tras ~6 peticiones en pocos minutos desde IP residencial (pruebas manuales seguidas). Se detecta
 como `PortalBlocked` en `http.py`. En producción (1 req/5 min) no debería ocurrir; no lanzar pasadas
 manuales en ráfaga contra milanuncios.
-Riesgo principal pendiente: IPs de GitHub Actions. Se comprueba con el workflow `probe portals`.
+Desde IPs de GitHub Actions (`probe portals`, 2026-10-17): Wallapop, coches.net, AutoScout24 y coches.com
+responden; **milanuncios y Autocasión devuelven 403**. Por eso `scan.yml` pasa `--portal` con los cuatro que
+funcionan; los otros dos siguen en `config.yaml` para la ejecución en casa (PC/Docker). Re-sondear de vez en
+cuando con `probe portals` y, si cambian, actualizar la lista de `scan.yml` y esta nota.
 Detalles y ejemplos de respuesta en `docs/PLAN.md`.
 
 ## Arquitectura (resumen)
@@ -111,5 +114,7 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
 ## Estado del proyecto
 
 - 2026-10-17: Fases 0-5 hechas en local (núcleo, 6 portales, workflows, README, Docker). 115 tests, cobertura 85%.
-  Pendiente del usuario: crear bot de Telegram, repo público en GitHub, secretos, y lanzar `scan` con
-  `seed=true`. Después: ejecutar `probe portals` y anotar aquí qué portales responden desde GitHub.
+  Bot de Telegram creado y probado; repo público `miguelbrdev/CarBotFinder` subido, CI en verde. `probe portals`
+  ejecutado: milanuncios y Autocasión bloquean desde GitHub (ver tabla de portales). Pendiente del usuario:
+  secretos en GitHub y primer `scan` con `seed=true`. Opcional: ejecutar en casa `--portal milanuncios
+  --portal autocasion` en paralelo (estado independiente, sin duplicados porque son portales distintos).

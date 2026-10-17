@@ -52,7 +52,8 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONUNBUFFERED: "1"
         run: |
-          ARGS="-c config.yaml -v"
+          # milanuncios and Autocasión answer 403 to GitHub's IPs (probe 2026-10-17); run them at home.
+          ARGS="-c config.yaml -v --portal wallapop --portal cochesnet --portal autoscout24 --portal cochescom"
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           if [ "${{ inputs.seed }}" = "true" ]; then ARGS="$ARGS --seed"; fi
           uv run carbotfinder run $ARGS

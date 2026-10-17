@@ -253,8 +253,13 @@ mayoritariamente concesionario.
 
 Fases 0-5 completadas en local; pasada en vivo (`--dry-run`) con los seis portales: Wallapop 4→1,
 coches.net 24→22, milanuncios 41→8, AutoScout24 7→7, coches.com 20→0, Autocasión 25→1
-(obtenidos→coinciden con el filtro MX-5 NC). Pendiente: despliegue real en GitHub Actions (Fase 3
-necesita el repo y los secretos del usuario) y sondeo de IPs de GitHub con el workflow `probe portals`.
+(obtenidos→coinciden con el filtro MX-5 NC).
+
+Despliegue: repo público subido y CI en verde (2026-10-17). Sondeo `probe portals` desde GitHub Actions:
+Wallapop 3→1, coches.net 24→21, AutoScout24 7→7, coches.com 20→0 responden; **milanuncios y Autocasión 403**.
+Decisión: `scan.yml` ejecuta solo los cuatro portales que responden (`--portal`); milanuncios y Autocasión
+quedan en `config.yaml` para la ejecución doméstica (Docker/`--interval`), que puede correr en paralelo sin
+duplicar avisos porque el estado es por máquina y los portales no se solapan. No se usan proxies.
 
 ## 7. Riesgos y mitigaciones
 
