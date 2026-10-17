@@ -59,12 +59,16 @@ config.yaml ──▶ runner ──▶ portal.fetch() ──▶ parse() ──�
 2. **Get your chat id**: message [@userinfobot](https://t.me/userinfobot) (or call
    `https://api.telegram.org/bot<TOKEN>/getUpdates` after writing to your bot).
 3. **Fork or push this repository** (public repositories get unlimited Actions minutes).
-4. In the repository go to *Settings → Secrets and variables → Actions* and add
+4. Edit `config.yaml` with your searches (see [Configuration](#configuration)) and commit. Check it
+   locally first with `uv run carbotfinder run --dry-run --no-seed --state /tmp/x.sqlite -vv`: a portal
+   reporting `fetched=0` spells the make or model differently.
+5. In the repository go to *Settings → Secrets and variables → Actions* and add
    `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
-5. Edit `config.yaml` with your searches and commit.
-6. *Actions → scan → Run workflow* with **seed = true** once. From then on the schedule runs every
+6. Open the *Actions* tab. On a fork GitHub keeps workflows disabled until you enable them there.
+7. *Actions → probe portals → Run workflow* prints which portals answer from GitHub's IPs. If one is
+   blocked, drop it from the `--portal` list in `.github/workflows/scan.yml`.
+8. *Actions → scan → Run workflow* with **seed = true** once. From then on the schedule runs every
    5 minutes and you only receive genuinely new ads.
-7. Optional: *Actions → probe portals → Run workflow* prints which portals answer from GitHub's IPs.
 
 ### Caveats of the free schedule
 
@@ -164,10 +168,14 @@ las IPs de GitHub; para cubrirlos desde casa (Windows) usa `scripts\start-home-s
 1. Crea un bot en Telegram con [@BotFather](https://t.me/BotFather) y copia el token. Abre un chat
    con tu bot y pulsa *Start*.
 2. Consigue tu `chat_id` escribiendo a [@userinfobot](https://t.me/userinfobot).
-3. Haz un fork (o sube el repo) y añade los secretos `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID`
-   en *Settings → Secrets and variables → Actions*.
-4. Edita `config.yaml` con tus búsquedas.
-5. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí el bot
+3. Haz un fork (o sube el repo a un repositorio público tuyo).
+4. Edita `config.yaml` con tus búsquedas y pruébalo en local con
+   `uv run carbotfinder run --dry-run --no-seed --state /tmp/x.sqlite -vv`.
+5. Añade los secretos `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en
+   *Settings → Secrets and variables → Actions*.
+6. Entra en la pestaña *Actions* y habilita los workflows (en un fork vienen desactivados).
+   Lanza *probe portals* para ver qué portales responden desde GitHub.
+7. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí el bot
    corre cada 5 minutos y solo te llegan anuncios nuevos.
 
 El plan de desarrollo y la investigación de cada portal están en `docs/PLAN.md`.
