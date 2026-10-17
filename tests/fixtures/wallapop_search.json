@@ -1,0 +1,244 @@
+{
+ "data": {
+  "section": {
+   "type": "organic_search_results",
+   "payload": {
+    "title": "fixture",
+    "items": [
+     {
+      "id": "p618n9w9kxz5",
+      "user_id": "redacted",
+      "title": "Mazda MX-5 NBFL 1.6 110 CV – 2004 – SOLO 118.500KM",
+      "description": "🚗 Datos generales\nModelo: Mazda MX-5 NBFL\nAño: 2004\nMotor: 1.6 gasolina, 110 CV\n",
+      "category_id": 100,
+      "price": {
+       "amount": 8200.0,
+       "currency": "EUR"
+      },
+      "images": [
+       {
+        "id": "e65vel9q0dkj",
+        "average_color": "13C1AC",
+        "urls": {
+         "small": "https://cdn.wallapop.com/images/10420/lq/dc/__/c10420p1314082007/i6803161672.jpg?pictureSize=W320",
+         "medium": "https://cdn.wallapop.com/images/10420/lq/dc/__/c10420p1314082007/i6803161672.jpg?pictureSize=W640",
+         "big": "https://cdn.wallapop.com/images/10420/lq/dc/__/c10420p1314082007/i6803161672.jpg?pictureSize=W800"
+        }
+       }
+      ],
+      "reserved": {
+       "flag": false
+      },
+      "location": {
+       "latitude": 41.4904169,
+       "longitude": 2.0641038,
+       "postal_code": "08193",
+       "city": "Bellaterra",
+       "region": "Cataluña",
+       "region2": "Barcelona",
+       "country_code": "ES"
+      },
+      "shipping": {
+       "item_is_shippable": false,
+       "user_allows_shipping": false
+      },
+      "favorited": {
+       "flag": false
+      },
+      "bump": {
+       "type": "none"
+      },
+      "web_slug": "mazda-mx-5-nbfl-1-6-110-cv-2004-solo-118-500km-1314082007",
+      "created_at": 1792242391919,
+      "modified_at": 1792243157337,
+      "taxonomy": [
+       {
+        "id": 100,
+        "name": "Cars",
+        "icon": "car"
+       }
+      ],
+      "type_attributes": {
+       "brand": "Mazda",
+       "model": "MX-5",
+       "year": 2004,
+       "version": "1.6 16v 110 Active 2p",
+       "km": 118500,
+       "engine": "Gasoline",
+       "gearbox": "Manual",
+       "horsepower": 110.0
+      },
+      "is_favoriteable": {
+       "flag": true
+      },
+      "is_refurbished": {
+       "flag": false
+      },
+      "is_top_profile": {
+       "flag": false
+      },
+      "has_warranty": {
+       "flag": false
+      }
+     },
+     {
+      "id": "4z487oxq1ljy",
+      "user_id": "redacted",
+      "title": "Mazda MX-5 Miata NB",
+      "description": "Mazda MX5 Miata NB 1, motor 1.6\nEl coche es el mimado de la casa, viendo las fot",
+      "category_id": 100,
+      "price": {
+       "amount": 7500.0,
+       "currency": "EUR"
+      },
+      "images": [
+       {
+        "id": "qjwe9nqp1mwj",
+        "average_color": "13C1AC",
+        "urls": {
+         "small": "https://cdn.wallapop.com/images/10420/lq/d5/__/c10420p1314073262/i6803128505.jpg?pictureSize=W320",
+         "medium": "https://cdn.wallapop.com/images/10420/lq/d5/__/c10420p1314073262/i6803128505.jpg?pictureSize=W640",
+         "big": "https://cdn.wallapop.com/images/10420/lq/d5/__/c10420p1314073262/i6803128505.jpg?pictureSize=W800"
+        }
+       }
+      ],
+      "reserved": {
+       "flag": true
+      },
+      "location": {
+       "latitude": 39.5916487,
+       "longitude": -0.4623615,
+       "postal_code": "46117",
+       "city": "Bétera",
+       "region": "Comunidad Valenciana",
+       "region2": "Valencia",
+       "country_code": "ES"
+      },
+      "shipping": {
+       "item_is_shippable": false,
+       "user_allows_shipping": false,
+       "cost_configuration_id": "814429d6-7844-471d-97af-196cd4020f26"
+      },
+      "favorited": {
+       "flag": false
+      },
+      "bump": {
+       "type": "none"
+      },
+      "web_slug": "mazda-mx-5-miata-nb-1314073262",
+      "created_at": 1792241377641,
+      "modified_at": 1792241453438,
+      "taxonomy": [
+       {
+        "id": 100,
+        "name": "Cars",
+        "icon": "car"
+       }
+      ],
+      "type_attributes": {
+       "brand": "Mazda",
+       "model": "MX-5",
+       "year": 1999,
+       "version": "1.6i 16v 110 FE 2p",
+       "km": 148000,
+       "engine": "Gasoline",
+       "gearbox": "Manual",
+       "horsepower": 110.0
+      },
+      "is_favoriteable": {
+       "flag": true
+      },
+      "is_refurbished": {
+       "flag": false
+      },
+      "is_top_profile": {
+       "flag": false
+      },
+      "has_warranty": {
+       "flag": false
+      }
+     },
+     {
+      "id": "ejkmv27dd9zx",
+      "user_id": "redacted",
+      "title": "Mazda MX-5 1.8 126 HP 2011 Manual Kaminari",
+      "description": "MAZDA MX-5 1.8 KAMINARI – 2011 – 150.000 KM\n\nSe vende precioso Mazda MX-5 1.8 Ka",
+      "category_id": 100,
+      "price": {
+       "amount": 11999.0,
+       "currency": "EUR"
+      },
+      "images": [
+       {
+        "id": "8j3mglrvv176",
+        "average_color": "13C1AC",
+        "urls": {
+         "small": "https://cdn.wallapop.com/images/10420/lq/cv/__/c10420p1314060147/i6803067334.jpg?pictureSize=W320",
+         "medium": "https://cdn.wallapop.com/images/10420/lq/cv/__/c10420p1314060147/i6803067334.jpg?pictureSize=W640",
+         "big": "https://cdn.wallapop.com/images/10420/lq/cv/__/c10420p1314060147/i6803067334.jpg?pictureSize=W800"
+        }
+       }
+      ],
+      "reserved": {
+       "flag": false
+      },
+      "location": {
+       "latitude": 36.511418045673416,
+       "longitude": -4.886270860141414,
+       "postal_code": "29600",
+       "city": "Marbella",
+       "region": "Andalucía",
+       "region2": "Málaga",
+       "country_code": "ES"
+      },
+      "shipping": {
+       "item_is_shippable": false,
+       "user_allows_shipping": false
+      },
+      "favorited": {
+       "flag": false
+      },
+      "bump": {
+       "type": "none"
+      },
+      "web_slug": "mazda-mx-5-1-8-126-hp-2011-manual-kaminari-1314060147",
+      "created_at": 1792239348545,
+      "modified_at": 1792239364471,
+      "taxonomy": [
+       {
+        "id": 100,
+        "name": "Cars",
+        "icon": "car"
+       }
+      ],
+      "type_attributes": {
+       "brand": "Mazda",
+       "model": "MX-5",
+       "year": 2011,
+       "version": "Roadster Coupé 1.8 126 Iruka 2p",
+       "km": 152000,
+       "engine": "Gasoline",
+       "gearbox": "Manual",
+       "horsepower": 126.0
+      },
+      "is_favoriteable": {
+       "flag": true
+      },
+      "is_refurbished": {
+       "flag": false
+      },
+      "is_top_profile": {
+       "flag": false
+      },
+      "has_warranty": {
+       "flag": false
+      }
+     }
+    ]
+   }
+  }
+ },
+ "meta": {
+  "next_page": "redacted"
+ }
+}
