@@ -22,3 +22,7 @@ build/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/

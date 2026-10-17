@@ -60,7 +60,7 @@ carbotfinder/
   portals/base.py  # interfaz Portal.fetch(search) -> list[Listing]
   portals/{wallapop,cochesnet,milanuncios,autoscout24,cochescom,autocasion}.py
   runner.py        # orquesta: por cada búsqueda y portal → fetch → filtrar → dedup → notificar
-  cli.py           # `carbotfinder run [--once] [--dry-run] [--seed] [--portal X]`
+  cli.py           # `carbotfinder run [--dry-run] [--seed] [--portal X] [--interval N]`
 tests/             # fixtures HTML/JSON reales recortados y anonimizados; un test por parser
 .github/workflows/scan.yml
 docs/PLAN.md
@@ -91,12 +91,13 @@ Reglas de diseño:
   volumen bajo (~1 req/portal/5 min), no eludir CAPTCHAs ni autenticación. Si un portal bloquea,
   se desactiva en config y se documenta; no se escala con proxies de pago.
 
-## Comandos (cuando exista el código)
+## Comandos
 
 ```
 uv sync                                  # instalar
-uv run carbotfinder run --once --dry-run # una pasada sin notificar
-uv run carbotfinder run --once --seed    # marca lo actual como visto sin avisar (primer arranque)
+uv run carbotfinder run --dry-run        # una pasada sin notificar (una pasada es el modo por defecto)
+uv run carbotfinder run --seed           # marca lo actual como visto sin avisar (primer arranque)
+uv run carbotfinder run --interval 120   # bucle cada 2 min (PC/Raspberry)
 uv run pytest                            # tests (añade --cov --cov-report=term-missing para cobertura)
 uv run ruff check . && uv run ruff format --check .
 ```
