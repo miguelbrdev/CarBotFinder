@@ -24,7 +24,13 @@ DEFAULT_HEADERS: dict[str, str] = {
     "Upgrade-Insecure-Requests": "1",
 }
 
-_BLOCK_MARKERS = ("captcha-delivery.com", "_Incapsula_Resource", "cf-chl-", "Just a moment...")
+_BLOCK_MARKERS = (
+    "captcha-delivery.com",  # DataDome challenge
+    "_Incapsula_Resource",  # Imperva script
+    "Pardon Our Interruption",  # Imperva block page, served with HTTP 200 (seen on milanuncios)
+    "cf-chl-",  # Cloudflare challenge
+    "Just a moment...",
+)
 _RETRY_BACKOFF_SECONDS = (1.0, 3.0)
 
 

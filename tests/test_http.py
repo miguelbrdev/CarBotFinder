@@ -78,6 +78,9 @@ def test_does_not_retry_client_errors(client: httpx.Client) -> None:
         pytest.param(
             httpx.Response(200, text="<script src='/_Incapsula_Resource'>"), id="incapsula"
         ),
+        pytest.param(
+            httpx.Response(200, text="<title>Pardon Our Interruption</title>"), id="imperva-page"
+        ),
     ],
 )
 def test_detects_anti_bot_blocks(client: httpx.Client, response: httpx.Response) -> None:

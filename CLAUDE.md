@@ -44,6 +44,10 @@ El código debe ser genérico (varias búsquedas configurables en YAML), no un s
 
 Lección aprendida: no fijar `Accept-Encoding` a mano; httpx no descodifica brotli sin el paquete
 `brotli` y el HTML llega ilegible (coches.com y Autocasión fallaban por eso).
+Lección aprendida (2026-10-17): milanuncios (Imperva) devolvió la página "Pardon Our Interruption" con
+HTTP 200 tras ~6 peticiones en pocos minutos desde IP residencial (pruebas manuales seguidas). Se detecta
+como `PortalBlocked` en `http.py`. En producción (1 req/5 min) no debería ocurrir; no lanzar pasadas
+manuales en ráfaga contra milanuncios.
 Riesgo principal pendiente: IPs de GitHub Actions. Se comprueba con el workflow `probe portals`.
 Detalles y ejemplos de respuesta en `docs/PLAN.md`.
 
