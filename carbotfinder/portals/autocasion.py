@@ -40,7 +40,8 @@ def build_url(search: SearchConfig) -> tuple[str, dict[str, str | int | float]]:
     key = (search.make.lower(), search.model.lower())
     make_slug, model_slug = _SLUG_OVERRIDES.get(key, (slugify(search.make), slugify(search.model)))
     url = f"{BASE_URL}/coches-segunda-mano/{make_slug}-{model_slug}-ocasion"
-    return url, {"orden": "fecha"}
+    # "Publicación: Más recientes" in the site's sort menu. ``orden=fecha`` alone changes nothing.
+    return url, {"orden": "fecha", "sort": "updated_at", "direction": "desc"}
 
 
 def _text(fragment: str) -> str:

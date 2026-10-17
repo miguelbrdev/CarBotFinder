@@ -39,8 +39,8 @@ El código debe ser genérico (varias búsquedas configurables en YAML), no un s
 | coches.net | JSON `POST web.gw.coches.net/search` con cabeceras `x-adevinta-channel: web-desktop` y `x-schibsted-tenant: coches`; exige `makeId`/`modelId` (lookup en `/makes` y `/models?makeId=`) | solo orden `relevance`; filtros precio/km/año en servidor; `size=100` cubre todo |
 | milanuncios | HTML SSR `window.__INITIAL_PROPS__` → `adListPagination.adList.ads` | `orden=date` y `hasta=` funcionan; km/año vienen como texto en `tags` |
 | AutoScout24.es | `__NEXT_DATA__` → `props.pageProps.listings`; filtros y `sort=age&desc=1` en URL | sin fecha de publicación ni provincia (se deriva del CP) |
-| coches.com | `__NEXT_DATA__` → `pageProps.classifieds.classifiedList` | Imperva, pero sirve HTML; URL del anuncio desde los `<a href="...?id=">` de la página |
-| Autocasión | HTML `<article class="anuncio">` + `<ul class="supplementary">` | `?orden=fecha`; todo concesionarios |
+| coches.com | `__NEXT_DATA__` → `pageProps.classifieds.classifiedList` | Imperva, pero sirve HTML; 20 por página, `?order[created_at]=desc` (más nuevos primero); sin filtros en URL (parámetros desconocidos → 404); URL del anuncio desde los `<a href="...?id=">` |
+| Autocasión | HTML `<article class="anuncio">` + `<ul class="supplementary">` | 25 por página; orden "más recientes" = `?orden=fecha&sort=updated_at&direction=desc` (`orden=fecha` solo no hace nada); todo concesionarios |
 
 Lección aprendida: no fijar `Accept-Encoding` a mano; httpx no descodifica brotli sin el paquete
 `brotli` y el HTML llega ilegible (coches.com y Autocasión fallaban por eso).

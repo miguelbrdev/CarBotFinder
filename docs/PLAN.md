@@ -123,7 +123,11 @@ y se toma de los `<a href>` de la propia página. Sin parámetros de filtro ni o
 Importante: la respuesta llega en brotli; httpx la descodifica solo si no se fuerza `Accept-Encoding`.
 
 
-- URL: `https://www.coches.com/coches-segunda-mano/mazda-mx-5.htm`. **Por verificar:** filtros por query string.
+- URL: `https://www.coches.com/coches-segunda-mano/mazda-mx-5.htm?order[created_at]=desc` (20 por página,
+  más nuevos primero; auditado 2026-10-17: sin el orden solo se veían 20 de 25 anuncios por relevancia).
+  La query string solo admite `page` y `order[...]` (valores del menú "Ordenar": `order[price][amount]`,
+  `order[registration][year]`, `order[mileage][amount]`, `order[created_at]`); cualquier otro parámetro → 404.
+  Los filtros `filters[price]...` son de su API privada, no de la página.
 - Datos: `__NEXT_DATA__` → `props.pageProps.classifieds.classifiedList[]` (20).
 - Campos: `id`, `make.name`, `model.name`, `version.name`, `mileage.amount`, `price.amount`, `priceOffer`,
   `currentProvince.name`, `registration.year`, `createdAt`, `updatedAt`, `visibleId`, `dealer`.
@@ -136,7 +140,10 @@ Importante: la respuesta llega en brotli; httpx la descodifica solo si no se fue
 `<ul class="supplementary">` = año, combustible, km, provincia, municipio). Clase `con-concesionario` = profesional.
 
 
-- URL: `https://www.autocasion.com/coches-segunda-mano/mazda-mx-5-ocasion?orden=fecha`.
+- URL: `https://www.autocasion.com/coches-segunda-mano/mazda-mx-5-ocasion?orden=fecha&sort=updated_at&direction=desc`
+  (25 por página; auditado 2026-10-17: `orden=fecha` solo devuelve el orden por defecto y se veían 25 de 36;
+  el enlace "Publicación: Más recientes" del propio menú añade `sort=updated_at&direction=desc`.
+  Otros `sort`: `price`, `kilometers`, `year`).
 - Datos: un `<script type="application/ld+json">` con lista de 25 `Product` → `offers.{price,url}`,
   `offers.itemOffered` (`Car`: `model`, `color`, `bodyType`; km/año **por verificar** dentro del `Car`).
   Complementar con las tarjetas HTML (`data-product-key`, `data-path`) si faltan km/año/provincia.

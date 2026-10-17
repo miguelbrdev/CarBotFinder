@@ -120,9 +120,9 @@ def test_cochescom_parse() -> None:
 
 
 def test_cochescom_url(search: SearchConfig) -> None:
-    assert (
-        cochescom.build_url(search) == "https://www.coches.com/coches-segunda-mano/mazda-mx-5.htm"
-    )
+    url, params = cochescom.build_url(search)
+    assert url == "https://www.coches.com/coches-segunda-mano/mazda-mx-5.htm"
+    assert params == {"order[created_at]": "desc"}
 
 
 # -- autocasion ------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ def test_autocasion_parse() -> None:
 def test_autocasion_url(search: SearchConfig) -> None:
     url, params = autocasion.build_url(search)
     assert url == "https://www.autocasion.com/coches-segunda-mano/mazda-mx-5-ocasion"
-    assert params == {"orden": "fecha"}
+    assert params == {"orden": "fecha", "sort": "updated_at", "direction": "desc"}
 
 
 # -- fetch path shared behaviour -------------------------------------------------------------------

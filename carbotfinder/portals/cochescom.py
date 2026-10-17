@@ -1,6 +1,8 @@
 """coches.com: Next.js listing page with ``__NEXT_DATA__`` (mostly dealer stock).
 
 Verified 2026-10-17. Protected by Imperva/Incapsula but served plain HTML to a browser-like GET.
+The page shows 20 ads; ``order[created_at]=desc`` (newest first) keeps new ads on the first page.
+Price/year/km filters are not available in the URL (only ``page`` and ``order[...]`` are accepted).
 Ad URLs are taken from the page's anchors (``...htm?id=<visibleId>``) with a constructed fallback.
 """
 
@@ -31,10 +33,13 @@ _SLUG_OVERRIDES: dict[tuple[str, str], tuple[str, str]] = {}
 _AD_LINK = re.compile(r'href="([^"]*\?id=([A-Za-z0-9_-]+))"')
 
 
-def build_url(search: SearchConfig) -> str:
+def build_url(search: SearchConfig) -> tuple[str, dict[str, str | int | float]]:
     key = (search.make.lower(), search.model.lower())
     make_slug, model_slug = _SLUG_OVERRIDES.get(key, (slugify(search.make), slugify(search.model)))
-    return f"{BASE_URL}/coches-segunda-mano/{make_slug}-{model_slug}.htm"
+    url = f"{BASE_URL}/coches-segunda-mano/{make_slug}-{model_slug}.htm"
+    # "Últimos anuncios" in the site's sort menu; honoured server-side. Unknown query
+    # parameters make the page 404, so nothing else goes in the query string.
+    return url, {"order[created_at]": "desc"}
 
 
 def parse(html: str) -> list[Listing]:
@@ -92,5 +97,6 @@ class CochesCom(Portal):
     name = NAME
 
     def fetch(self, search: SearchConfig, client: httpx.Client) -> list[Listing]:
-        response = http.get(client, NAME, build_url(search))
+        url, params = build_url(search)
+        response = http.get(client, NAME, url, params=params)
         return parse(response.text)
