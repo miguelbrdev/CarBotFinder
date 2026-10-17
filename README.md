@@ -98,6 +98,7 @@ On Windows, `scripts/` has ready-made launchers for the portals that block GitHu
 - `scripts\stop-home-scan.bat` stops that window. Closing it or pressing Ctrl+C works too.
 - `scripts\home-scan-window.bat` is the script that runs inside the window; double-click it to run
   in the foreground.
+- `scripts\refresh-home-scan.bat` does a single pass and exits: a manual refresh.
 
 Or with Docker:
 

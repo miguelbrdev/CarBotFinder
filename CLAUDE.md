@@ -107,6 +107,7 @@ uv run carbotfinder run --seed           # marca lo actual como visto sin avisar
 uv run carbotfinder run --interval 120   # bucle cada 2 min (PC/Raspberry)
 scripts\start-home-scan.bat               # Windows: ventana propia con milanuncios+Autocasión cada 5 min (PID en state/home-scan.pid)
 scripts\stop-home-scan.bat                # Windows: detiene esa ventana
+scripts\refresh-home-scan.bat             # Windows: una sola pasada de esos portales y sale
 uv run pytest                            # tests (añade --cov --cov-report=term-missing para cobertura)
 uv run ruff check . && uv run ruff format --check .
 ```
