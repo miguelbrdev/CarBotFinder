@@ -121,7 +121,7 @@ def run_once(
                         continue  # not persisted -> retried next run
                     stats.notified += 1
                 state.add(listing, search=search.name, notified=should_notify, now=now)
-    log.info("run finished\n%s", report.summary())
+    log.info("run finished")
     return report
 
 
