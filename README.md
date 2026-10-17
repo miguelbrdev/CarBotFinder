@@ -91,6 +91,14 @@ uv run carbotfinder run --seed          # first real run
 uv run carbotfinder run --interval 120  # keep scanning every 2 minutes
 ```
 
+On Windows, `scripts/` has ready-made launchers for the portals that block GitHub's IPs:
+
+- `scripts\start-home-scan.bat` opens a window that scans milanuncios and Autocasión every 5 minutes
+  (pass other `--portal` arguments to override) and remembers its PID.
+- `scripts\stop-home-scan.bat` stops that window. Closing it or pressing Ctrl+C works too.
+- `scripts\home-scan-window.bat` is the script that runs inside the window; double-click it to run
+  in the foreground.
+
 Or with Docker:
 
 ```bash
@@ -148,7 +156,9 @@ pocos minutos** cuando aparece un anuncio que cumple tus filtros: marca y modelo
 precio máximo, kilómetros máximos, provincias excluidas (por defecto las islas) y tipo de
 vendedor.
 
-Funciona **gratis y 24/7 en GitHub Actions**, sin servidor ni tarjeta. Para desplegarlo:
+Funciona **gratis y 24/7 en GitHub Actions**, sin servidor ni tarjeta. milanuncios y Autocasión bloquean
+las IPs de GitHub; para cubrirlos desde casa (Windows) usa `scripts\start-home-scan.bat` y
+`scripts\stop-home-scan.bat`. Para desplegarlo:
 
 1. Crea un bot en Telegram con [@BotFather](https://t.me/BotFather) y copia el token. Abre un chat
    con tu bot y pulsa *Start*.
