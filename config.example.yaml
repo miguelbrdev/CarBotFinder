@@ -1,0 +1,30 @@
+# Copy to config.yaml and adapt. Secrets (bot token, chat id) come from the environment, never from here.
+
+telegram:
+  token_env: TELEGRAM_BOT_TOKEN
+  chat_id_env: TELEGRAM_CHAT_ID
+
+defaults:
+  # Province names are normalised (accents stripped, lower-case). Islands are excluded by default.
+  excluded_provinces: [baleares, las palmas, santa cruz de tenerife]
+  # On the first run (empty state) only listings published within this window are notified;
+  # everything older is silently marked as seen so you do not get hundreds of alerts.
+  seed_window_hours: 2
+  # Portals used when a search does not list its own.
+  portals: [wallapop, cochesnet, milanuncios, autoscout24, cochescom, autocasion]
+
+searches:
+  - name: mx5-nc
+    make: Mazda
+    model: MX-5
+    year_min: 2005
+    year_max: 2015
+    price_max: 14000
+    km_max: 180000
+    # Whole-word, case-insensitive matches against the title. Empty = no title filtering.
+    title_exclude: []        # e.g. ["NA", "NB", "ND"] to drop other MX-5 generations
+    title_include: []        # e.g. ["NC"] to require a word
+    seller_types: [private, dealer]
+    include_reserved: false
+    # portals: [wallapop, milanuncios]   # override defaults.portals for this search only
+    # excluded_provinces: [...]           # override defaults.excluded_provinces for this search only

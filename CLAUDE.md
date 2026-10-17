@@ -1,0 +1,108 @@
+# CarBotFinder
+
+Bot que vigila los principales portales de coches de segunda mano de España y avisa por Telegram,
+en pocos minutos, cuando aparece un anuncio que cumple los filtros del usuario (modelo, año, precio,
+km, zona). Coste de operación: 0 €. El repositorio es público y sirve también como portfolio.
+
+El plan detallado, la investigación de portales y las decisiones técnicas están en `docs/PLAN.md`.
+Léelo antes de tocar un portal o la infraestructura.
+
+## Objetivo concreto del usuario (primer caso de uso)
+
+- Mazda MX-5 generación NC (años 2005-2015, cualquiera vale).
+- Precio máximo 14.000 €. Kilometraje máximo 180.000 km.
+- Cualquier provincia de la España peninsular. Excluidas: Illes Balears, Las Palmas, Santa Cruz de Tenerife.
+  Ceuta y Melilla NO se excluyen por defecto (el usuario solo pidió excluir islas); es configurable.
+- Aviso al móvil con enlace, a cualquier hora, lo antes posible tras la publicación.
+
+El código debe ser genérico (varias búsquedas configurables en YAML), no un script a medida del MX-5.
+
+## Decisiones cerradas (no reabrir sin motivo nuevo)
+
+| Tema | Decisión | Por qué |
+|---|---|---|
+| Lenguaje | Python 3.12 | Mejor ecosistema de scraping/parsing; legible para portfolio |
+| HTTP | `httpx` (HTTP/2, cabeceras de navegador realistas) | Sin navegador: todos los portales objetivo sirven datos en HTML/JSON embebido a un GET simple (verificado 2026-10-17) |
+| Navegador headless | NO en la ruta principal | Pesado en CI, detectable; solo como fallback documentado si un portal empieza a bloquear |
+| Notificaciones | Telegram Bot API | Gratis sin límite práctico para uso personal. WhatsApp Cloud API requiere cuenta Meta Business y desde oct-2026 cobra plantillas utility; libs no oficiales violan ToS |
+| Ejecución | GitHub Actions (repo público = minutos ilimitados), `schedule` cada 5 min + `workflow_dispatch` | 0 €, sin tarjeta. Latencia real 5-20 min por retrasos de GitHub; se mitiga con cron-job.org disparando `workflow_dispatch` (ver PLAN) |
+| Estado (anuncios ya vistos) | Fichero SQLite en GitHub Actions cache (`actions/cache` restore/save con clave por run) | Evita cientos de commits al día. Si se pierde el cache, el modo "seed" evita re-notificar anuncios antiguos |
+| Config | `config.yaml` (búsquedas, filtros, portales) + variables de entorno para secretos | Secretos nunca en el repo público |
+| Dependencias | `uv` + `pyproject.toml` | Rápido y reproducible en CI |
+| Calidad | `ruff` (lint+format), `pytest`, `mypy` en modo estricto razonable | Portfolio |
+
+## Portales (estado verificado el 2026-10-17 con curl desde conexión doméstica)
+
+| Portal | Cómo se obtienen datos | Anti-bot visto | Prioridad |
+|---|---|---|---|
+| Wallapop | JSON `GET api.wallapop.com/api/v3/search` (`category_ids=100`, `brand`, `model`, `max_km`, `max_sale_price`, `order_by=newest`) | CloudFront, respondió 200 sin cookies | 1 |
+| coches.net | HTML SSR, `window.__INITIAL_PROPS__ = JSON.parse("...")` → `initialResults.items` (35/página, `?pg=N`) | CloudFront, 200 | 2 |
+| milanuncios | HTML SSR, mismo patrón `__INITIAL_PROPS__` → `adListPagination.adList.ads` (41/página) | CloudFront, 200 | 3 |
+| AutoScout24.es | HTML, `<script id="__NEXT_DATA__">` → `props.pageProps.listings`; filtros en URL (`kmto`, `priceto`, `fregfrom`, `fregto`, `sort=age&desc=1`) | 200 | 4 |
+| coches.com | HTML, `__NEXT_DATA__` → `pageProps.classifieds.classifiedList` (20/página) | Imperva/Incapsula presente, pero 200 a curl | 5 |
+| Autocasión | HTML + JSON-LD (`Product`/`Car`, 25/página), `?orden=fecha` | Cloudflare, 200 | 6 |
+| motor.es | Agregador de stock de concesionarios, Cloudflare | No evaluado | Futuro |
+
+Las URLs exactas, los campos y los ejemplos de respuesta están en `docs/PLAN.md`.
+Riesgo principal: las IPs de GitHub Actions (datacenter) pueden recibir 403 donde la IP doméstica recibe 200.
+Se comprueba en la Fase 3 con un workflow de sondeo antes de dar un portal por bueno.
+
+## Arquitectura (resumen)
+
+```
+carbotfinder/
+  config.py        # modelos pydantic; carga config.yaml + env
+  models.py        # Listing normalizado: portal, id, title, price, year, km, province, url, published_at, seller_type
+  filters.py       # aplica filtros de una búsqueda a un Listing (puro, sin I/O)
+  state.py         # SQLite: anuncios vistos (portal, id, first_seen, price)
+  http.py          # cliente httpx compartido: cabeceras, timeouts, reintentos, backoff
+  notify/telegram.py
+  portals/base.py  # interfaz Portal.fetch(search) -> list[Listing]
+  portals/{wallapop,cochesnet,milanuncios,autoscout24,cochescom,autocasion}.py
+  runner.py        # orquesta: por cada búsqueda y portal → fetch → filtrar → dedup → notificar
+  cli.py           # `carbotfinder run [--once] [--dry-run] [--seed] [--portal X]`
+tests/             # fixtures HTML/JSON reales recortados y anonimizados; un test por parser
+.github/workflows/scan.yml
+docs/PLAN.md
+config.example.yaml
+```
+
+Reglas de diseño:
+- Cada portal falla de forma aislada: una excepción en uno no impide notificar los demás.
+- Los parsers son funciones puras `parse(html_or_json) -> list[Listing]` testeadas con fixtures.
+  La red solo se toca en `fetch`.
+- Filtrado siempre en local aunque el portal admita el filtro en la URL (los filtros remotos
+  son una optimización; la verdad es `filters.py`). Ej.: Wallapop devolvió MX-5 de 1999 con `min_year=2005`.
+- Una petición por portal y búsqueda por ejecución (primera página, ordenada por más recientes).
+  Nunca paginar en bucle en producción.
+- Mensaje de Telegram: título, precio, año, km, provincia, portal, enlace. Un mensaje por anuncio.
+- Errores repetidos de un portal se avisan por Telegram como máximo una vez cada 6 h.
+
+## Convenciones
+
+- Código, nombres, comentarios, commits y README principal en inglés (portfolio). `CLAUDE.md` y
+  `docs/PLAN.md` en español. README incluirá sección en español.
+- Commits convencionales: `feat:`, `fix:`, `docs:`, `test:`, `ci:`, `chore:`.
+- Tipado en todas las funciones públicas. Sin `Any` salvo en bordes de parseo.
+- No añadir dependencias sin justificarlo en el PR/commit.
+- Nunca commitear tokens, `chat_id`, ni el fichero de estado. `.env` está en `.gitignore`.
+- Fixtures de tests: recortar a 1-3 anuncios, quitar teléfonos, nombres y user ids.
+- Respeto a los portales: cabecera `User-Agent` honesta pero de navegador, `Accept-Language: es-ES`,
+  volumen bajo (~1 req/portal/5 min), no eludir CAPTCHAs ni autenticación. Si un portal bloquea,
+  se desactiva en config y se documenta; no se escala con proxies de pago.
+
+## Comandos (cuando exista el código)
+
+```
+uv sync                                  # instalar
+uv run carbotfinder run --once --dry-run # una pasada sin notificar
+uv run carbotfinder run --once --seed    # marca lo actual como visto sin avisar (primer arranque)
+uv run pytest                            # tests
+uv run ruff check . && uv run ruff format --check .
+```
+
+Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PATH` (por defecto `state/seen.sqlite`).
+
+## Estado del proyecto
+
+- 2026-10-17: investigación hecha, plan escrito, sin código aún. Siguiente paso: Fase 0 y 1 del PLAN.
