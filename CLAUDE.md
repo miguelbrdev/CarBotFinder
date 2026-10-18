@@ -25,7 +25,7 @@ El código debe ser genérico (varias búsquedas configurables en YAML), no un s
 | HTTP | `httpx` (HTTP/2, cabeceras de navegador realistas) | Sin navegador: todos los portales objetivo sirven datos en HTML/JSON embebido a un GET simple (verificado 2026-10-17) |
 | Navegador headless | NO en la ruta principal | Pesado en CI, detectable; solo como fallback documentado si un portal empieza a bloquear |
 | Notificaciones | Telegram Bot API | Gratis sin límite práctico para uso personal. WhatsApp Cloud API requiere cuenta Meta Business y desde oct-2026 cobra plantillas utility; libs no oficiales violan ToS |
-| Ejecución | GitHub Actions (repo público = minutos ilimitados), `schedule` cada 5 min + `workflow_dispatch` | 0 €, sin tarjeta. Latencia real 5-20 min por retrasos de GitHub; se mitiga con cron-job.org disparando `workflow_dispatch` (ver PLAN) |
+| Ejecución | GitHub Actions (repo público = minutos ilimitados). Cadencia real: cron-job.org dispara `workflow_dispatch` cada 10 min; el `schedule` (`*/10`) queda solo de respaldo | 0 €, sin tarjeta. Medido 2026-10-17/18: el `schedule` de GitHub corrió 4 veces en 13 h, inservible como cadencia principal |
 | Estado (anuncios ya vistos) | Fichero SQLite en GitHub Actions cache (`actions/cache` restore/save con clave por run) | Evita cientos de commits al día. Si se pierde el cache, el modo "seed" evita re-notificar anuncios antiguos |
 | Config | `config.yaml` (búsquedas, filtros, portales) + variables de entorno para secretos | Secretos nunca en el repo público |
 | Dependencias | `uv` + `pyproject.toml` | Rápido y reproducible en CI |
@@ -118,6 +118,8 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
 
 - 2026-10-17: Fases 0-5 hechas en local (núcleo, 6 portales, workflows, README, Docker). 115 tests, cobertura 85%.
   Bot de Telegram creado y probado; repo público `miguelbrdev/CarBotFinder` subido, CI en verde. `probe portals`
-  ejecutado: milanuncios y Autocasión bloquean desde GitHub (ver tabla de portales). Pendiente del usuario:
-  secretos en GitHub y primer `scan` con `seed=true`. Opcional: ejecutar en casa `--portal milanuncios
-  --portal autocasion` en paralelo (estado independiente, sin duplicados porque son portales distintos).
+  ejecutado: milanuncios y Autocasión bloquean desde GitHub (ver tabla de portales). Secretos puestos y
+  primer `scan` con seed hecho (2026-10-17 20:09 UTC); el estado se encadena bien entre ejecuciones.
+- 2026-10-18: el `schedule` de GitHub corrió solo 4 veces en 13 h → cadencia pasada a cron-job.org cada
+  10 min (decisión del usuario), cron de respaldo `*/10`. Pendiente del usuario: crear el token y el job
+  en cron-job.org (pasos en README). En casa, `scripts\start-home-scan.bat` cubre milanuncios y Autocasión.

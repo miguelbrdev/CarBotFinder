@@ -67,16 +67,31 @@ config.yaml ──▶ runner ──▶ portal.fetch() ──▶ parse() ──�
 6. Open the *Actions* tab. On a fork GitHub keeps workflows disabled until you enable them there.
 7. *Actions → probe portals → Run workflow* prints which portals answer from GitHub's IPs. If one is
    blocked, drop it from the `--portal` list in `.github/workflows/scan.yml`.
-8. *Actions → scan → Run workflow* with **seed = true** once. From then on the schedule runs every
-   5 minutes and you only receive genuinely new ads.
+8. *Actions → scan → Run workflow* with **seed = true** once. From then on you only receive
+   genuinely new ads.
+9. **Set up the external trigger** (below). Without it GitHub runs the scan only a few times a day.
 
-### Caveats of the free schedule
+### External trigger (required for a real cadence)
 
-- GitHub may delay `schedule` runs by 5-20 minutes at busy hours and occasionally skip one. For a
-  tighter cadence create a free job on [cron-job.org](https://cron-job.org) that calls
-  `POST https://api.github.com/repos/<you>/CarBotFinder/actions/workflows/scan.yml/dispatches`
-  with body `{"ref":"main"}` and a fine-grained token (*Actions: read and write*) every 5 minutes.
-- Scheduled workflows are disabled after 60 days without commits. Any commit re-enables them.
+GitHub's `schedule` is best effort. Measured on a fresh repository (2026-10-17/18): a `*/5` cron ran
+**4 times in 13 hours**. So the workflow keeps a `*/10` schedule only as a backup, and the real
+cadence comes from a free [cron-job.org](https://cron-job.org) job that triggers `workflow_dispatch`:
+
+1. GitHub → *Settings → Developer settings → Personal access tokens → Fine-grained tokens →
+   Generate new token*. Repository access: only this repo. Permission: **Actions: Read and write**.
+2. cron-job.org → *Create cronjob*:
+   - URL: `https://api.github.com/repos/<you>/CarBotFinder/actions/workflows/scan.yml/dispatches`
+   - Schedule: every 10 minutes (5 if you want; keep the request volume to the portals in mind).
+   - *Advanced*: request method **POST**; request body `{"ref":"main"}`; headers
+     `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`,
+     `User-Agent: carbotfinder-cron`.
+3. *Run now* on cron-job.org: a `scan` run labelled "Manually run" appears in *Actions* within a
+   minute. A 404 from GitHub means the token lacks access to the repo; a 422 means the body is wrong.
+
+The workflow's `concurrency` group makes overlapping triggers queue instead of racing on the state.
+Scheduled workflows are disabled after 60 days without commits; the external trigger is not affected.
+
+### Other caveats
 - **milanuncios and Autocasión return 403 to GitHub's IP ranges** (checked 2026-10-17), so `scan.yml`
   only runs the other four portals (`--portal ...`). Both work from a residential connection: run
   `carbotfinder run --portal milanuncios --portal autocasion --interval 300` at home (below) to cover
@@ -175,7 +190,10 @@ las IPs de GitHub; para cubrirlos desde casa (Windows) usa `scripts\start-home-s
    *Settings → Secrets and variables → Actions*.
 6. Entra en la pestaña *Actions* y habilita los workflows (en un fork vienen desactivados).
    Lanza *probe portals* para ver qué portales responden desde GitHub.
-7. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí el bot
-   corre cada 5 minutos y solo te llegan anuncios nuevos.
+7. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí solo te
+   llegan anuncios nuevos.
+8. El cron de GitHub es poco fiable (medido: 4 ejecuciones en 13 horas). Crea un job gratuito en
+   [cron-job.org](https://cron-job.org) que dispare el workflow cada 10 minutos; los pasos exactos
+   están en la sección *External trigger* de arriba.
 
 El plan de desarrollo y la investigación de cada portal están en `docs/PLAN.md`.

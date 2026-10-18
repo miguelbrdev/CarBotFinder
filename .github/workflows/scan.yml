@@ -2,8 +2,9 @@ name: scan
 
 on:
   schedule:
-    # Nominal cadence; GitHub may delay or skip runs under load (see README).
-    - cron: "*/5 * * * *"
+    # Backup only. GitHub ran this 4 times in 13 h on 2026-10-17/18; the real cadence comes from
+    # an external cron-job.org job calling workflow_dispatch every 10 minutes (see README).
+    - cron: "*/10 * * * *"
   workflow_dispatch:
     inputs:
       dry_run:

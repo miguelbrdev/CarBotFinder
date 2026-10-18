@@ -40,8 +40,9 @@ en la fase indicada.
 | Fly.io / Render / Railway | Ya no tienen free tier real o duermen | - | Descartado |
 | PC propio / Raspberry Pi | 0 EUR | 1 min | Depende de que esté encendido; IP residencial (ventaja anti-bot) |
 
-**Decisión: Fase 3 en GitHub Actions** (`schedule: */5` + `workflow_dispatch`). Cuando funcione,
-añadir cron-job.org como disparador externo para acercarse a los 5 min reales. Si las IPs de GitHub
+**Decisión: Fase 3 en GitHub Actions** (`schedule` + `workflow_dispatch`). Resultado medido
+(2026-10-17/18): el `schedule: */5` corrió 4 veces en 13 h, así que cron-job.org disparando
+`workflow_dispatch` cada 10 min es la cadencia real y el cron (`*/10`) solo respaldo. Si las IPs de GitHub
 reciben 403 en algún portal, ese portal se marca como "solo residencial" y se documenta; la opción de
 ejecutarlo en un PC/Raspberry con Docker queda como despliegue alternativo soportado (Fase 6).
 
