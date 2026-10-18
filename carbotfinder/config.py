@@ -17,7 +17,7 @@ from pydantic import (
 )
 
 from carbotfinder.errors import ConfigError
-from carbotfinder.geo import ISLAND_PROVINCES, normalise_province
+from carbotfinder.geo import normalise_province
 from carbotfinder.models import SellerType
 
 ALL_PORTALS: tuple[str, ...] = (
@@ -58,7 +58,7 @@ class TelegramConfig(BaseModel):
 class Defaults(BaseModel):
     model_config = _STRICT
 
-    excluded_provinces: list[str] = Field(default_factory=lambda: sorted(ISLAND_PROVINCES))
+    excluded_provinces: list[str] = Field(default_factory=list)  # e.g. [baleares] to skip islands
     seed_window_hours: int = Field(default=2, ge=0)
     portals: list[PortalName] = Field(default_factory=lambda: list(ALL_PORTALS))
     error_alert_after_failures: int = Field(default=3, ge=1)

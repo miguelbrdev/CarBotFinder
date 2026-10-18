@@ -5,8 +5,9 @@ telegram:
   chat_id_env: TELEGRAM_CHAT_ID
 
 defaults:
-  # Province names are normalised (accents stripped, lower-case). Islands are excluded by default.
-  excluded_provinces: [baleares, las palmas, santa cruz de tenerife]
+  # Provinces you do not want ads from. Empty = all of Spain. Names are normalised (accents
+  # stripped, lower-case), so "Illes Balears" and "Baleares" are the same thing.
+  excluded_provinces: []   # e.g. [baleares, las palmas, santa cruz de tenerife] to skip the islands
   # On the first run (empty state) only listings published within this window are notified;
   # everything older is silently marked as seen so you do not get hundreds of alerts.
   seed_window_hours: 2

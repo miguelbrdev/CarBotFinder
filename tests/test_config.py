@@ -11,9 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_example_config_is_valid() -> None:
     config = load_config(ROOT / "config.example.yaml")
     assert config.searches[0].name == "mx5-nc"
-    assert config.excluded_provinces_for(config.searches[0]) == frozenset(
-        {"baleares", "las palmas", "santa cruz de tenerife"}
-    )
+    assert config.excluded_provinces_for(config.searches[0]) == frozenset()  # all of Spain
     assert "wallapop" in config.portals_for(config.searches[0])
 
 

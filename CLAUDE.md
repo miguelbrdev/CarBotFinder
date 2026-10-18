@@ -12,7 +12,8 @@ Léelo antes de tocar un portal o la infraestructura.
 - Mazda MX-5 generación NC (años 2005-2015, cualquiera vale).
 - Precio máximo 14.000 €. Kilometraje máximo 180.000 km.
 - Cualquier provincia de la España peninsular. Excluidas: Illes Balears, Las Palmas, Santa Cruz de Tenerife.
-  Ceuta y Melilla NO se excluyen por defecto (el usuario solo pidió excluir islas); es configurable.
+  Ceuta y Melilla NO se excluyen (el usuario solo pidió excluir islas). Es su `config.yaml`: el valor por
+  defecto del programa es no excluir ninguna provincia (decisión 2026-10-18, para que sirva a cualquiera).
 - Aviso al móvil con enlace, a cualquier hora, lo antes posible tras la publicación.
 
 El código debe ser genérico (varias búsquedas configurables en YAML), no un script a medida del MX-5.
@@ -133,3 +134,7 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
 - 2026-10-18 10:50 UTC: el secreto TELEGRAM_BOT_TOKEN de GitHub estaba mal (lo destapó la comprobación nueva);
   corregido por el usuario y verificado en verde. Despliegue completo y funcionando: cron-job.org cada 15 min
   → GitHub (4 portales) + scripts de casa (milanuncios, Autocasión).
+- 2026-10-18: README reescrito a petición del usuario: guía paso a paso para usuarios no técnicos (solo
+  navegador: fork, editar config.yaml en GitHub, secretos, Actions, cron-job.org) en inglés y en español,
+  y la referencia técnica después. Solo se menciona fork (no clonar). Valor por defecto de
+  `excluded_provinces` ahora vacío; el `config.yaml` del usuario sigue excluyendo las islas.

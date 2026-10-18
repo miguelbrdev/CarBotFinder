@@ -158,7 +158,8 @@ Importante: la respuesta llega en brotli; httpx la descodifica solo si no se fue
 
 ### 4.8 Exclusión de islas
 
-Provincias excluidas por defecto: `Illes Balears`/`Baleares`, `Las Palmas`, `Santa Cruz de Tenerife`.
+Por defecto no se excluye ninguna provincia (decisión del usuario 2026-10-18: el proyecto es para
+cualquiera). El `config.yaml` del usuario excluye `Baleares`, `Las Palmas` y `Santa Cruz de Tenerife`.
 Normalizar acentos y variantes (`Illes Balears`, `Islas Baleares`, `Balears`, `Sta. Cruz de Tenerife`).
 Para AutoScout24, mapear CP → provincia (07 Baleares, 35 Las Palmas, 38 S/C Tenerife).
 Ceuta (51) y Melilla (52) configurables, no excluidas por defecto.
