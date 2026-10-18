@@ -81,10 +81,10 @@ cadence comes from a free [cron-job.org](https://cron-job.org) job that triggers
    Generate new token*. Repository access: only this repo. Permission: **Actions: Read and write**.
 2. cron-job.org → *Create cronjob*:
    - URL: `https://api.github.com/repos/<you>/CarBotFinder/actions/workflows/scan.yml/dispatches`
-   - Schedule: every 10 minutes (5 if you want; keep the request volume to the portals in mind).
+   - Schedule: every 10-15 minutes (5 if you want; keep the request volume to the portals in mind).
    - *Advanced*: request method **POST**; request body `{"ref":"main"}`; headers
-     `Authorization: Bearer <token>`, `Accept: application/vnd.github+json`,
-     `User-Agent: carbotfinder-cron`.
+     `Authorization: Bearer <token>` (the word `Bearer` matters), `Accept: application/vnd.github+json`,
+     `Content-Type: application/json`, `User-Agent: carbotfinder-cron`.
 3. *Run now* on cron-job.org: a `scan` run labelled "Manually run" appears in *Actions* within a
    minute. A 404 from GitHub means the token lacks access to the repo; a 422 means the body is wrong.
 
@@ -193,7 +193,7 @@ las IPs de GitHub; para cubrirlos desde casa (Windows) usa `scripts\start-home-s
 7. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí solo te
    llegan anuncios nuevos.
 8. El cron de GitHub es poco fiable (medido: 4 ejecuciones en 13 horas). Crea un job gratuito en
-   [cron-job.org](https://cron-job.org) que dispare el workflow cada 10 minutos; los pasos exactos
+   [cron-job.org](https://cron-job.org) que dispare el workflow cada 10-15 minutos; los pasos exactos
    están en la sección *External trigger* de arriba.
 
 El plan de desarrollo y la investigación de cada portal están en `docs/PLAN.md`.
