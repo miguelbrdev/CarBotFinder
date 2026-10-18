@@ -20,4 +20,4 @@ jobs:
           enable-cache: true
       - run: uv sync --no-dev --frozen
       - name: Dry scan from this runner
-        run: uv run carbotfinder run -c config.yaml --dry-run --no-seed --state /tmp/probe.sqlite -v 2>&1 | tail -n 40
+        run: uv run --no-sync carbotfinder run -c config.yaml --dry-run --no-seed --state /tmp/probe.sqlite -v 2>&1 | tail -n 40

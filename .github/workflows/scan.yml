@@ -57,7 +57,7 @@ jobs:
           ARGS="-c config.yaml -v --portal wallapop --portal cochesnet --portal autoscout24 --portal cochescom"
           if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
           if [ "${{ inputs.seed }}" = "true" ]; then ARGS="$ARGS --seed"; fi
-          uv run carbotfinder run $ARGS
+          uv run --no-sync carbotfinder run $ARGS
 
       - name: Save state
         if: always()
