@@ -2,6 +2,7 @@
 
 [![ci](https://github.com/miguelbrdev/CarBotFinder/actions/workflows/ci.yml/badge.svg)](https://github.com/miguelbrdev/CarBotFinder/actions/workflows/ci.yml)
 [![scan](https://github.com/miguelbrdev/CarBotFinder/actions/workflows/scan.yml/badge.svg)](https://github.com/miguelbrdev/CarBotFinder/actions/workflows/scan.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Looking for a specific used car in Spain? CarBotFinder watches the main car portals for you and
 sends you a **Telegram message within minutes** when a new ad matches what you want: make and
@@ -438,3 +439,9 @@ vendedor, portal y enlace.
   que suficiente para buscar coche y no molesta a los portales.
 - **Si algo falla**, la tabla [Troubleshooting](#troubleshooting) recoge los errores típicos y su
   solución.
+
+---
+
+## License
+
+[MIT](LICENSE). Use it, fork it, improve it.
