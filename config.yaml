@@ -19,7 +19,7 @@ searches:
     model: MX-5
     year_min: 2005
     year_max: 2015
-    price_max: 14000
+    price_max: 15000
     km_max: 180000
     # Whole-word, case-insensitive matches against the title. Empty = no title filtering.
     title_exclude: []        # e.g. ["NA", "NB", "ND"] to drop other MX-5 generations

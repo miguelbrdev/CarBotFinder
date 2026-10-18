@@ -9,7 +9,7 @@ en la fase indicada.
 | Requisito | Detalle |
 |---|---|
 | Filtros | precio máximo, modelo (marca+modelo), rango de años, km máximo, provincias excluidas |
-| Caso inicial | Mazda MX-5 NC, 2005-2015, <= 14.000 EUR, <= 180.000 km, península (sin Baleares ni Canarias) |
+| Caso inicial | Mazda MX-5 NC, 2005-2015, <= 15.000 EUR (14.000 hasta 2026-10-18), <= 180.000 km, península (sin Baleares ni Canarias) |
 | Portales | coches.net, Wallapop, milanuncios (pedidos) + AutoScout24.es, coches.com, Autocasión (añadidos) |
 | Aviso | Telegram, con enlace, minutos después de publicarse, 24/7 |
 | Coste | 0 EUR |

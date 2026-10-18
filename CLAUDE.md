@@ -10,7 +10,7 @@ Léelo antes de tocar un portal o la infraestructura.
 ## Objetivo concreto del usuario (primer caso de uso)
 
 - Mazda MX-5 generación NC (años 2005-2015, cualquiera vale).
-- Precio máximo 14.000 €. Kilometraje máximo 180.000 km.
+- Precio máximo 15.000 € (subido de 14.000 el 2026-10-18). Kilometraje máximo 180.000 km.
 - Cualquier provincia de la España peninsular. Excluidas: Illes Balears, Las Palmas, Santa Cruz de Tenerife.
   Ceuta y Melilla NO se excluyen (el usuario solo pidió excluir islas). Es su `config.yaml`: el valor por
   defecto del programa es no excluir ninguna provincia (decisión 2026-10-18, para que sirva a cualquiera).
