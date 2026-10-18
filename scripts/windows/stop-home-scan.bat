@@ -1,7 +1,7 @@
 @echo off
 REM Stops the window started by start-home-scan.bat.
 setlocal
-set "PIDFILE=%~dp0..\state\home-scan.pid"
+set "PIDFILE=%~dp0..\..\state\home-scan.pid"
 if not exist "%PIDFILE%" goto :not_running
 set /p PID=<"%PIDFILE%"
 tasklist /FI "PID eq %PID%" 2>nul | find "%PID%" >nul

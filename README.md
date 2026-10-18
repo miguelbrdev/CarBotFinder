@@ -8,7 +8,7 @@ sends you a **Telegram message within minutes** when a new ad matches what you w
 model, years, maximum price, maximum mileage, provinces to skip, private sellers and/or dealers.
 
 It runs **for free, 24/7, on GitHub**. No server, no credit card, nothing to install on your
-computer. Setting it up takes about 20 minutes in a web browser.
+computer. Setting it up takes a few minutes in a web browser.
 
 ```
 🚗 Mazda MX-5 1.8 Active
@@ -26,7 +26,7 @@ computer. Setting it up takes about 20 minutes in a web browser.
 You need a Telegram account and a free [GitHub](https://github.com/signup) account. Everything
 below happens in your browser.
 
-### Step 1. Create your Telegram bot (2 min)
+### Step 1. Create your Telegram bot
 
 1. In Telegram, open [@BotFather](https://t.me/BotFather) and send `/newbot`.
 2. Give it a name (anything, e.g. `My car alerts`) and a username that must end in `bot`
@@ -34,7 +34,7 @@ below happens in your browser.
 3. BotFather replies with a **token** that looks like `123456789:AAH4k...`. Copy it somewhere safe.
    This token is a password: anyone who has it can send messages as your bot.
 
-### Step 2. Find your chat id (2 min)
+### Step 2. Find your chat id
 
 The bot needs to know which Telegram chat to write to. That chat has a number, the *chat id*.
 
@@ -48,13 +48,13 @@ The bot needs to know which Telegram chat to write to. That chat has a number, t
 If you see `"result":[]`, your message did not reach this bot: check that you wrote to the bot
 with the exact username BotFather gave you, send another message and reload the page.
 
-### Step 3. Make your own copy of this project (1 min)
+### Step 3. Make your own copy of this project
 
 Click the **Fork** button at the top right of this page and confirm. GitHub creates a copy of the
 project in your account; that copy is what will run for you. Keep it public: public projects get
 unlimited free execution time on GitHub.
 
-### Step 4. Tell the bot what car you want (5 min)
+### Step 4. Tell the bot what car you want
 
 In **your copy**, open the file `config.yaml`, click the pencil icon (*Edit this file*) and change
 the search. You can have several searches; each one looks like this:
@@ -82,7 +82,7 @@ Other things you can set:
 Click **Commit changes** when done. You can come back and edit this file whenever you want; the
 next run uses the new filters.
 
-### Step 5. Give your copy the bot's credentials (2 min)
+### Step 5. Give your copy the bot's credentials
 
 In your copy go to **Settings → Secrets and variables → Actions → New repository secret** and
 create two secrets:
@@ -95,7 +95,7 @@ create two secrets:
 Paste the values without spaces before or after. Secrets are encrypted and nobody else can read
 them, not even in a public project.
 
-### Step 6. Start it (3 min)
+### Step 6. Start it
 
 1. Open the **Actions** tab of your copy. If GitHub asks, click *I understand my workflows, go
    ahead and enable them*.
@@ -108,7 +108,7 @@ them, not even in a public project.
 The first run with *seed* ticked remembers every ad that already exists so you do not get dozens
 of old ads at once. From now on you only receive ads that appear after this moment.
 
-### Step 7. Make it run every 15 minutes (5 min)
+### Step 7. Make it run every 15 minutes
 
 GitHub can run the bot on a timer, but its free timer is unreliable (in our tests it ran only a
 few times a day). A free account on [cron-job.org](https://cron-job.org) fixes that by pressing the
@@ -205,15 +205,18 @@ uv run carbotfinder run --seed          # first real run
 uv run carbotfinder run --interval 900  # keep scanning every 15 minutes
 ```
 
-On Windows, `scripts/` has launchers that cover milanuncios and Autocasión alongside a GitHub
-deployment (state is per machine and the portals do not overlap, so no duplicate alerts):
+`scripts/` has ready-made launchers that cover milanuncios and Autocasión alongside a GitHub
+deployment (state is per machine and the portals do not overlap, so no duplicate alerts). Pass
+other `--portal` arguments to any of them to change the portals.
 
-- `scripts\start-home-scan.bat` opens a window that scans those two portals every 5 minutes
-  (pass other `--portal` arguments to override) and remembers its PID.
-- `scripts\stop-home-scan.bat` stops that window. Closing it or pressing Ctrl+C works too.
-- `scripts\refresh-home-scan.bat` does a single pass and exits: a manual refresh.
-- `scripts\home-scan-window.bat` is what runs inside the window; double-click to run in the
-  foreground.
+| | Windows (`scripts\windows\`) | Linux / macOS (`scripts/unix/`) |
+|---|---|---|
+| Start in the background, every 5 minutes | `start-home-scan.bat` (opens its own window) | `start-home-scan.sh` (logs to `state/home-scan.log`) |
+| Stop it | `stop-home-scan.bat` | `stop-home-scan.sh` |
+| One pass now, then exit | `refresh-home-scan.bat` | `refresh-home-scan.sh` |
+| Run in the foreground (Ctrl+C to stop) | `home-scan-window.bat` | `home-scan.sh` |
+
+Both start scripts refuse to start twice and remember the process in `state/home-scan.pid`.
 
 Or with Docker:
 
@@ -244,9 +247,10 @@ under their usual spellings, postal codes and the portals' abbreviations.
 
 ### External trigger: why cron-job.org
 
-GitHub's `schedule` is best effort. Measured on a fresh repository (2026-10-17/18): a `*/5` cron ran
-**4 times in 13 hours**. The workflow keeps a `*/10` schedule only as a backup; the real cadence
-comes from cron-job.org calling `workflow_dispatch` (steps in [Step 7](#step-7-make-it-run-every-15-minutes-5-min)).
+GitHub's built-in schedule is best effort. Measured on a fresh repository (2026-10-17/18): a
+schedule set to every 5 minutes ran **4 times in 13 hours**. The workflow keeps a 10-minute schedule
+only as a backup; the real cadence comes from cron-job.org triggering the workflow
+(steps in [Step 7](#step-7-make-it-run-every-15-minutes)).
 
 - The workflow's `concurrency` group makes overlapping triggers queue instead of racing on the state.
 - GitHub disables the backup `schedule` after 60 days without commits (it emails you a week before;
@@ -305,17 +309,17 @@ por **Telegram en pocos minutos** cuando aparece un anuncio que cumple tus filtr
 modelo, años, precio máximo, kilómetros máximos, provincias que quieras evitar y tipo de vendedor.
 
 Funciona **gratis y 24/7 en GitHub**, sin servidor, sin tarjeta y sin instalar nada en tu
-ordenador. Montarlo lleva unos 20 minutos en el navegador. Necesitas una cuenta de Telegram y una
-cuenta gratuita de [GitHub](https://github.com/signup).
+ordenador. Montarlo lleva unos pocos minutos en el navegador. Necesitas una cuenta de Telegram y
+una cuenta gratuita de [GitHub](https://github.com/signup).
 
-### Paso 1. Crea tu bot de Telegram (2 min)
+### Paso 1. Crea tu bot de Telegram
 
 1. En Telegram abre [@BotFather](https://t.me/BotFather) y envía `/newbot`.
 2. Ponle un nombre (el que quieras) y un usuario que termine en `bot` (por ejemplo `misalertascoche_bot`).
 3. BotFather te responde con un **token** parecido a `123456789:AAH4k...`. Guárdalo: es una
    contraseña, quien lo tenga puede enviar mensajes como tu bot.
 
-### Paso 2. Averigua tu chat id (2 min)
+### Paso 2. Averigua tu chat id
 
 1. Abre tu bot en Telegram (BotFather te da un enlace `t.me/...`), pulsa **Iniciar** y escríbele
    cualquier cosa, por ejemplo `hola`. El bot no contesta; es normal.
@@ -327,13 +331,13 @@ cuenta gratuita de [GitHub](https://github.com/signup).
 Si ves `"result":[]`, tu mensaje no ha llegado a ese bot: comprueba que has escrito al usuario
 exacto que te dio BotFather, escribe otra vez y recarga la página.
 
-### Paso 3. Haz tu copia del proyecto (1 min)
+### Paso 3. Haz tu copia del proyecto
 
 Pulsa el botón **Fork** arriba a la derecha y confirma. GitHub crea una copia del proyecto en tu
 cuenta; esa copia es la que trabajará para ti. Déjala pública: los proyectos públicos tienen
 tiempo de ejecución gratis sin límite.
 
-### Paso 4. Dile al bot qué coche buscas (5 min)
+### Paso 4. Dile al bot qué coche buscas
 
 En **tu copia**, abre el fichero `config.yaml`, pulsa el lápiz (*Edit this file*) y cambia la
 búsqueda. Puedes tener varias; cada una es así:
@@ -361,7 +365,7 @@ Más opciones:
 Pulsa **Commit changes**. Puedes volver a editar este fichero cuando quieras; la siguiente pasada
 usa los filtros nuevos.
 
-### Paso 5. Dale a tu copia las credenciales del bot (2 min)
+### Paso 5. Dale a tu copia las credenciales del bot
 
 En tu copia: **Settings → Secrets and variables → Actions → New repository secret**, dos veces:
 
@@ -373,7 +377,7 @@ En tu copia: **Settings → Secrets and variables → Actions → New repository
 Pega los valores sin espacios delante ni detrás. Los secretos van cifrados y nadie puede leerlos,
 tampoco en un proyecto público.
 
-### Paso 6. Arráncalo (3 min)
+### Paso 6. Arráncalo
 
 1. Abre la pestaña **Actions** de tu copia. Si GitHub pregunta, pulsa *I understand my workflows,
    go ahead and enable them*.
@@ -386,7 +390,7 @@ tampoco en un proyecto público.
 La primera pasada con *seed* marcado memoriza los anuncios que ya existen para no mandarte
 decenas de golpe. Desde ese momento solo recibes anuncios nuevos.
 
-### Paso 7. Haz que corra cada 15 minutos (5 min)
+### Paso 7. Haz que corra cada 15 minutos
 
 GitHub puede ejecutar el bot con un temporizador, pero su temporizador gratuito es poco fiable
 (en nuestras pruebas corrió solo unas pocas veces al día). Una cuenta gratuita en
@@ -423,8 +427,8 @@ vendedor, portal y enlace.
 
 - **Dos portales solo funcionan desde casa.** milanuncios y Autocasión bloquean las peticiones que
   vienen de los servidores de GitHub. Los otros cuatro funcionan bien. Si también quieres esos dos,
-  mira [Run at home](#run-at-home-pc-raspberry-pi-nas): en Windows basta con
-  `scripts\start-home-scan.bat` y `scripts\stop-home-scan.bat`.
+  mira [Run at home](#run-at-home-pc-raspberry-pi-nas): hay scripts para arrancarlo y pararlo en
+  Windows (`scripts\windows\`) y en Linux o Mac (`scripts/unix/`).
 - **Para cambiar los filtros**, edita `config.yaml` en tu copia. **Para pausar el bot**, desactiva
   el job en cron-job.org. **Para dejar de usarlo**, borra el job y tu copia del proyecto.
 - **Guarda el token y la llave en privado.** Si crees que el token del bot se ha filtrado, revócalo

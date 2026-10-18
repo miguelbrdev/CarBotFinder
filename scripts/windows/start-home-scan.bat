@@ -2,7 +2,7 @@
 REM Starts home-scan-window.bat in its own window and remembers its PID so that
 REM stop-home-scan.bat can stop exactly that window. Arguments are passed through.
 setlocal
-set "ROOT=%~dp0.."
+set "ROOT=%~dp0..\.."
 set "PIDFILE=%ROOT%\state\home-scan.pid"
 
 if not exist "%PIDFILE%" goto :check_env
