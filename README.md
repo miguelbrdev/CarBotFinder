@@ -89,7 +89,9 @@ cadence comes from a free [cron-job.org](https://cron-job.org) job that triggers
    minute. A 404 from GitHub means the token lacks access to the repo; a 422 means the body is wrong.
 
 The workflow's `concurrency` group makes overlapping triggers queue instead of racing on the state.
-Scheduled workflows are disabled after 60 days without commits; the external trigger is not affected.
+GitHub disables the backup `schedule` after 60 days without commits (it emails you a week before,
+and *Actions → scan → Enable workflow* or any commit turns it back on). The external trigger is
+not affected by this.
 
 ### Other caveats
 - **milanuncios and Autocasión return 403 to GitHub's IP ranges** (checked 2026-10-17), so `scan.yml`
