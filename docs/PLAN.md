@@ -279,3 +279,130 @@ duplicar avisos porque el estado es por máquina y los portales no se solapan. N
 2. Concesionarios: se incluyen junto a particulares; el mensaje indica cuál es.
 3. El usuario tiene cuenta de Telegram y de GitHub (necesarias para Fase 1 y 3).
 4. Idioma del código y README: inglés, con sección en español.
+
+## 9. Plan v2: hacer el proyecto usable por otras personas (2026-10-18)
+
+Objetivo: que alguien sin conocimientos de Python pueda tener el bot funcionando en 15 minutos
+siguiendo el README, sin tocar código y sin que nadie le acompañe. Decisión del usuario: **camino A**,
+cada persona ejecuta su propia copia (fork/template + su bot de Telegram + su GitHub). El bot compartido
+multiusuario (camino B) queda descartado por ahora: convertiría al autor en proveedor de un servicio y
+multiplicaría las peticiones a los portales desde una misma IP.
+
+### 9.1 Fricción medida en el primer despliegue real (2026-10-17)
+
+| # | Paso | Qué falló o costó | Fase que lo resuelve |
+|---|---|---|---|
+| 1 | Instalar Python + uv y ejecutar comandos | `uv` no estaba en PATH; cp1252 en consola | A4 (Docker) y A1 (`setup` tolerante) |
+| 2 | Obtener el `chat_id` | @userinfobot no respondía; hubo que usar `getUpdates` a mano | A1 |
+| 3 | Escribir `config.yaml` | Grafía de marca/modelo sin ayuda; no se sabe si un portal devuelve 0 por error o por grafía | A1 |
+| 4 | Despliegue en GitHub (9 pasos) | Secretos, habilitar Actions, probe, seed, token, cron-job.org; el `Bearer` olvidado solo se detecta probando | A2 |
+| 5 | Portales bloqueados desde GitHub | Lista `--portal` escrita a mano en `scan.yml` | A2 (autodesactivación) |
+| 6 | Scripts de casa solo Windows | `.bat` | A4 |
+| 7 | Fallos silenciosos | Token caducado, parser roto, caché perdido: nadie se entera | A3 |
+
+### 9.2 Fases
+
+**A1. Onboarding local: `carbotfinder setup` y `carbotfinder doctor`** (prioridad máxima)
+
+- `setup`: asistente interactivo en consola (sin dependencias nuevas, `input()` + validación pydantic).
+  1. Token del bot → llama a `getMe`, muestra el nombre del bot.
+  2. Chat id automático: pide al usuario que escriba "hola" al bot y sondea `getUpdates` hasta 2 min;
+     muestra nombre y chat id encontrados; envía un mensaje de prueba.
+  3. Búsqueda: marca, modelo, años, precio, km, provincias excluidas (islas por defecto), vendedores.
+  4. Comprobación en vivo: una petición por portal con esa búsqueda; por cada portal muestra
+     `N anuncios, M cumplen filtros` y dos títulos de ejemplo. `fetched=0` → sugerencia de grafía
+     (para coches.net, lista de modelos de esa marca desde su API; para Wallapop, aviso de que usa su
+     catálogo). Permite corregir y repetir.
+  5. Escribe `.env` y `config.yaml` (conservando comentarios del ejemplo) y hace el seed inicial si el
+     usuario quiere.
+- `doctor`: comprobación no interactiva que imprime una tabla con OK/FAIL: credenciales de Telegram
+  (`getMe`, `sendMessage` opcional), fichero de config válido, cada portal responde y devuelve anuncios,
+  estado accesible y fecha de última pasada, versión instalada vs. última publicada. Salida apta para
+  pegar en un issue. Es también lo que ejecuta el workflow `probe`.
+- Mensajes de error de config legibles (pydantic → frase en español/inglés con el campo y el valor).
+- Tests: el asistente se prueba con `respx` y entradas simuladas; `doctor` con portales falsos.
+
+Criterio de hecho: una persona que nunca ha visto el proyecto, con Python instalado, llega a recibir
+un mensaje de prueba y a tener `config.yaml` válido solo con `uv run carbotfinder setup`.
+
+**A2. Despliegue en GitHub sin pasos frágiles**
+
+- Repo marcado como **template** en GitHub ("Use this template" crea una copia limpia con Actions
+  activas; no hereda historial ni los badges del autor). Verificar que los `schedule` arrancan en copias
+  de template sin push adicional; si no, documentar "haz un commit".
+- **Autodesactivación de portales bloqueados por runner**: el runner ya guarda `portal_health`; se
+  amplía con una ventana: si un portal devuelve `PortalBlocked` en 3 pasadas seguidas, se salta
+  durante 24 h (y se reintenta después) en lugar de fallar cada vez. Así `scan.yml` deja de llevar la
+  lista `--portal` a mano y cada copia se adapta sola a lo que su runner puede ver. Se avisa una vez por
+  Telegram ("milanuncios bloquea esta IP; usa el modo casa").
+- Workflow `scan` con `inputs` claros y un workflow `setup` de un solo clic: hace el probe, el seed y
+  deja un resumen en el *job summary* de GitHub (markdown visible en la propia pestaña Actions).
+- Cron externo sin errores: `carbotfinder cron-command --repo <owner/repo>` imprime el comando cURL
+  exacto (con cabeceras, cuerpo y marcador para el token) para el botón **Import from cURL** de
+  cron-job.org, que rellena método, cabeceras y cuerpo solo. Documentar también el plan B (GitHub
+  `schedule`) y sus límites con los datos medidos.
+- Badges y URLs del README generados desde el nombre del repo (o instrucción "sustituye `<you>`").
+
+Criterio de hecho: el README de despliegue baja de 9 pasos a 5 y ninguno exige escribir cabeceras a mano.
+
+**A3. Salud y mantenimiento sin vigilancia**
+
+- Latido: el estado guarda `last_run_at`; `doctor` y cada pasada avisan por Telegram si la pasada
+  anterior fue hace más de X horas (configurable, por defecto 6 h), una vez al día como máximo. Cubre
+  caché perdido, cron-job.org parado y token caducado (en los casos en que alguna pasada llega a correr).
+- Deriva de parsers: si un portal devuelve 0 anuncios durante N pasadas seguidas para una búsqueda que
+  antes devolvía resultados, aviso por Telegram ("puede que X haya cambiado su web"). Es la señal de que
+  hay que actualizar el parser; no se puede automatizar la corrección.
+- Resumen diario opcional (`daily_summary: true`): un mensaje con pasadas realizadas, anuncios vistos
+  por portal y errores. Da confianza de que el bot vive.
+- Smoke test semanal en CI contra los portales reales (`probe`) que abre o actualiza un issue en el
+  repo si un parser falla, de modo que los forks reciban la señal por el *upstream*.
+- Dependabot para `uv.lock` y acciones de GitHub. Versionado semántico con tags y `CHANGELOG.md`;
+  `doctor` compara con la última release para avisar de actualizaciones.
+
+**A4. Portabilidad: casa, Docker, Raspberry**
+
+- Scripts equivalentes para Linux/macOS (`scripts/home-scan.sh` start/stop/refresh con PID file) y
+  un ejemplo de unidad `systemd` y de `launchd`.
+- Imagen Docker publicada en GHCR por workflow en cada release (`ghcr.io/<owner>/carbotfinder`), con
+  `docker-compose.yml` listo (`restart: unless-stopped`, volumen `state/`, `.env`). Objetivo:
+  `docker compose up -d` en una Raspberry sin instalar Python.
+- `setup` ejecutable dentro del contenedor (`docker compose run --rm bot setup`).
+
+**A5. Documentación y comunidad**
+
+- README reorganizado: "Qué hace" (1 pantalla, con captura del mensaje de Telegram), "En 15 minutos"
+  (ruta única recomendada), "Otras formas de ejecutarlo", "Configuración", "Preguntas frecuentes" con
+  los errores reales vistos (401 `Bearer`, 404 token sin permiso, 422 cuerpo, `fetched=0`, 403 desde
+  GitHub, "Pardon Our Interruption"), "Cómo añadir un portal".
+- Capturas de pantalla de los pasos de GitHub y cron-job.org; GIF corto de `setup`.
+- Plantillas de issue ("portal roto", "nuevo portal", "pregunta") y `CONTRIBUTING.md` actualizado.
+- Sección "Uso responsable" ampliada: qué volumen es razonable, por qué no hay proxies ni evasión.
+
+### 9.3 Orden, esfuerzo y dependencias
+
+| Fase | Esfuerzo | Depende de | Qué desbloquea |
+|---|---|---|---|
+| A1 setup + doctor | 2-3 sesiones | nada | todo lo demás (probe y setup workflow reutilizan `doctor`) |
+| A2 despliegue | 1-2 sesiones | A1 (`doctor`) | README corto; cron sin errores |
+| A3 salud | 1-2 sesiones | A1 (estado con `last_run_at`) | confianza a largo plazo |
+| A4 portabilidad | 1 sesión | A1 (`setup` en Docker) | Raspberry/NAS, Linux/Mac |
+| A5 documentación | 1 sesión, al final | A1-A4 | adopción |
+
+Sin dependencias nuevas de Python salvo justificación; sin servicios de pago; sin recoger datos de
+usuarios (cada copia es privada). Cada fase termina con tests, CI en verde y README actualizado.
+
+### 9.4 Riesgos específicos de v2
+
+| Riesgo | Mitigación |
+|---|---|
+| Más usuarios → más peticiones a los portales desde los rangos de GitHub → bloqueo general | Cadencia por defecto 15 min, una petición por portal, autodesactivación en bloqueo, documentación de uso responsable. No se puede controlar del todo: es inherente a repartir la herramienta. |
+| El asistente se queda obsoleto si un portal cambia la grafía | `setup` consulta en vivo, no una lista fija; coches.net expone su catálogo. |
+| Más superficie de código = más mantenimiento | `setup`/`doctor` reutilizan `runner`, `portals` y `notify`; nada duplicado. |
+| Template repo y `schedule` | Verificar en la primera fase A2 con una copia de prueba. |
+
+### 9.5 Fuera de alcance (por ahora)
+
+Bot compartido multiusuario, interfaz web, más portales (se añaden con el procedimiento de
+`CONTRIBUTING.md` cuando alguien los pida), notificaciones por WhatsApp o email, proxies o navegador
+headless para portales que bloquean.

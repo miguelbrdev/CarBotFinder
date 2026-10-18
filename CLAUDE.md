@@ -124,3 +124,6 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
   (decisión del usuario: **cada 15 min**, job "CarBotFinder scan", token fine-grained sin caducidad con
   Actions: read/write), cron de respaldo `*/10`. Primer disparo por API verificado 10:12 UTC. En casa,
   `scripts\start-home-scan.bat` cubre milanuncios y Autocasión.
+- 2026-10-18: planificada la v2 "usable por otros" (camino A: cada usuario su copia). Plan por fases en
+  docs/PLAN.md seccion 9: A1 setup/doctor -> A2 despliegue sin pasos fragiles -> A3 salud -> A4 portabilidad
+  -> A5 docs. Empezar por A1.
