@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import logging
 import time
+from typing import Any
 
 import httpx
 
@@ -63,6 +64,38 @@ class TelegramNotifier:
         self._token = token
         self._chat_id = chat_id
         self._client = client or httpx.Client(timeout=15.0)
+
+    def check(self) -> str:
+        """Verify token and chat id up front; returns ``@bot -> chat`` for logging.
+
+        Without this a wrong token or chat id only surfaces the first time an ad matches,
+        which may be days later and is easy to miss.
+        """
+        me = self._get("getMe")
+        chat = self._get("getChat", chat_id=self._chat_id)
+        who = chat.get("username") or chat.get("title") or chat.get("first_name") or self._chat_id
+        return f"@{me.get('username', '?')} -> {who}"
+
+    def _get(self, method: str, **params: str) -> dict[str, Any]:
+        url = _API.format(token=self._token, method=method)
+        try:
+            response = self._client.get(url, params=params)
+        except httpx.HTTPError as exc:
+            raise NotifyError(f"telegram network error: {exc}") from exc
+        is_json = response.headers.get("content-type", "").startswith("application/json")
+        body = response.json() if is_json else {}
+        if response.status_code in (401, 404) and method == "getMe":
+            raise NotifyError(
+                "telegram rejected the bot token (check TELEGRAM_BOT_TOKEN in @BotFather)"
+            )
+        if not body.get("ok"):
+            detail = body.get("description") or f"HTTP {response.status_code}"
+            hint = (
+                " (check TELEGRAM_CHAT_ID; write to the bot first)" if method == "getChat" else ""
+            )
+            raise NotifyError(f"telegram {method}: {detail}{hint}")
+        result: dict[str, Any] = body["result"]
+        return result
 
     def send(self, text: str) -> None:
         url = _API.format(token=self._token, method="sendMessage")

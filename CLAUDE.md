@@ -102,6 +102,7 @@ Reglas de diseño:
 
 ```
 uv sync                                  # instalar
+uv run carbotfinder setup-telegram       # descubre el chat_id, envía prueba y escribe .env
 uv run carbotfinder run --dry-run        # una pasada sin notificar (una pasada es el modo por defecto)
 uv run carbotfinder run --seed           # marca lo actual como visto sin avisar (primer arranque)
 uv run carbotfinder run --interval 120   # bucle cada 2 min (PC/Raspberry)
@@ -126,4 +127,6 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
   `scripts\start-home-scan.bat` cubre milanuncios y Autocasión.
 - 2026-10-18: planificada la v2 "usable por otros" (camino A: cada usuario su copia). Plan por fases en
   docs/PLAN.md seccion 9: A1 setup/doctor -> A2 despliegue sin pasos fragiles -> A3 salud -> A4 portabilidad
-  -> A5 docs. Empezar por A1.
+  -> A5 docs. **Decisión final el mismo día: no ampliar.** Solo `setup-telegram`, comprobación de
+  credenciales al arrancar `run` (`TelegramNotifier.check()`), y README con ruta completa + tabla de
+  errores. Resto archivado en PLAN §9.

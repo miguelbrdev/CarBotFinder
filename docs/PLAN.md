@@ -282,6 +282,13 @@ duplicar avisos porque el estado es por máquina y los portales no se solapan. N
 
 ## 9. Plan v2: hacer el proyecto usable por otras personas (2026-10-18)
 
+> **Decisión final (2026-10-18, mismo día):** el usuario prefiere no ampliar el proyecto, para no
+> complicarlo ni fomentar un uso masivo que acabe en bloqueos de IP. De este plan solo se ejecuta
+> lo mínimo: `carbotfinder setup-telegram` (el paso donde todo el mundo tropieza), una comprobación
+> de credenciales al arrancar `run` (los fallos de Telegram dejan de ser silenciosos) y un README
+> con la ruta completa y una tabla de errores reales. El resto (A2-A5) queda archivado aquí como
+> referencia por si cambia la decisión.
+
 Objetivo: que alguien sin conocimientos de Python pueda tener el bot funcionando en 15 minutos
 siguiendo el README, sin tocar código y sin que nadie le acompañe. Decisión del usuario: **camino A**,
 cada persona ejecuta su propia copia (fork/template + su bot de Telegram + su GitHub). El bot compartido

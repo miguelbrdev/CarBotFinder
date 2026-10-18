@@ -54,16 +54,26 @@ config.yaml ──▶ runner ──▶ portal.fetch() ──▶ parse() ──�
 
 ## Deploy on GitHub Actions (free)
 
-1. **Create a Telegram bot**: talk to [@BotFather](https://t.me/BotFather), `/newbot`, copy the token.
-   Then open a chat with your new bot and press *Start*.
-2. **Get your chat id**: message [@userinfobot](https://t.me/userinfobot) (or call
-   `https://api.telegram.org/bot<TOKEN>/getUpdates` after writing to your bot).
-3. **Fork or push this repository** (public repositories get unlimited Actions minutes).
+1. **Create a Telegram bot**: talk to [@BotFather](https://t.me/BotFather), send `/newbot`, follow
+   the questions and copy the token it gives you (looks like `123456789:AAH...`).
+2. **Connect it**: clone this repository, install [uv](https://docs.astral.sh/uv/) and run
+
+   ```bash
+   uv sync
+   uv run carbotfinder setup-telegram
+   ```
+
+   It asks for the token, tells you which bot to open in Telegram, waits for you to send it any
+   message, replies with a test message and writes `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` to
+   `.env`. Keep those two values: you need them again in step 5.
+3. **Fork or push this repository** to a public repository of yours (public repositories get
+   unlimited Actions minutes).
 4. Edit `config.yaml` with your searches (see [Configuration](#configuration)) and commit. Check it
    locally first with `uv run carbotfinder run --dry-run --no-seed --state /tmp/x.sqlite -vv`: a portal
    reporting `fetched=0` spells the make or model differently.
-5. In the repository go to *Settings → Secrets and variables → Actions* and add
-   `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
+5. In the repository go to *Settings → Secrets and variables → Actions* and add two secrets with the
+   values from `.env`: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. Every run checks them first and
+   fails loudly (red run, clear error) if either is wrong.
 6. Open the *Actions* tab. On a fork GitHub keeps workflows disabled until you enable them there.
 7. *Actions → probe portals → Run workflow* prints which portals answer from GitHub's IPs. If one is
    blocked, drop it from the `--portal` list in `.github/workflows/scan.yml`.
@@ -106,7 +116,7 @@ not affected by this.
 ```bash
 pip install uv
 uv sync
-cp .env.example .env            # bot token + chat id
+uv run carbotfinder setup-telegram      # writes .env (bot token + chat id), sends a test message
 uv run carbotfinder run --dry-run       # one pass, prints matches, sends nothing
 uv run carbotfinder run --seed          # first real run
 uv run carbotfinder run --interval 120  # keep scanning every 2 minutes
@@ -149,6 +159,21 @@ Province names are normalised (accents stripped, lower-case), so `Illes Balears`
 `Palma de Mallorca` all count as the same excluded province. Ads whose portal does not state a
 price are dropped; ads without year or mileage are kept (better a look than a miss).
 
+## Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `setup-telegram` says the token was rejected (401/404) | Token mistyped or truncated; it must be `digits:letters` with nothing after it | Copy it again from @BotFather (*/mybots → API Token*) |
+| `setup-telegram` waits and finds no message | You wrote to another bot with a similar name | Open the exact `t.me/<bot>` link it prints and send a message there |
+| A run fails with `telegram getChat: chat not found` | Wrong `TELEGRAM_CHAT_ID`, or you never wrote to the bot | Run `setup-telegram` again and update the secret |
+| A portal reports `fetched=0` every time | That portal spells the make or model differently | Try the spelling the portal uses in its own URL; see `_SLUG_OVERRIDES` in that portal's module |
+| `blocked (HTTP 403)` from GitHub Actions only | The portal rejects datacenter IPs | Run that portal at home (`scripts/`), keep the rest on GitHub |
+| `Pardon Our Interruption` from your own PC | Too many manual passes in a few minutes | Wait a while; one pass every few minutes is fine |
+| cron-job.org shows 401 | `Authorization` header without the word `Bearer`, or wrong token | `Bearer <token>` |
+| cron-job.org shows 404 | Token has no access to the repo or lacks *Actions: read and write* | Create the token again with those settings |
+| cron-job.org shows 422 | Request body is not exactly `{"ref":"main"}` | Fix the body and the `Content-Type: application/json` header |
+| No scheduled runs appear in *Actions* | GitHub's `schedule` is best effort (4 runs in 13 h measured) | Use the external trigger above |
+
 ## Development
 
 ```bash
@@ -182,20 +207,23 @@ Funciona **gratis y 24/7 en GitHub Actions**, sin servidor ni tarjeta. milanunci
 las IPs de GitHub; para cubrirlos desde casa (Windows) usa `scripts\start-home-scan.bat` y
 `scripts\stop-home-scan.bat`. Para desplegarlo:
 
-1. Crea un bot en Telegram con [@BotFather](https://t.me/BotFather) y copia el token. Abre un chat
-   con tu bot y pulsa *Start*.
-2. Consigue tu `chat_id` escribiendo a [@userinfobot](https://t.me/userinfobot).
+1. Crea un bot en Telegram con [@BotFather](https://t.me/BotFather) (`/newbot`) y copia el token.
+2. Clona el repo, instala [uv](https://docs.astral.sh/uv/) y ejecuta `uv sync` y
+   `uv run carbotfinder setup-telegram`: te pide el token, te dice a qué bot escribir, espera tu
+   mensaje, te responde con una prueba y guarda token y `chat_id` en `.env`.
 3. Haz un fork (o sube el repo a un repositorio público tuyo).
 4. Edita `config.yaml` con tus búsquedas y pruébalo en local con
    `uv run carbotfinder run --dry-run --no-seed --state /tmp/x.sqlite -vv`.
-5. Añade los secretos `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en
-   *Settings → Secrets and variables → Actions*.
+5. Añade los secretos `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` (los valores de tu `.env`) en
+   *Settings → Secrets and variables → Actions*. Cada ejecución los comprueba al arrancar y falla
+   con un error claro si están mal.
 6. Entra en la pestaña *Actions* y habilita los workflows (en un fork vienen desactivados).
    Lanza *probe portals* para ver qué portales responden desde GitHub.
 7. Lanza una vez *Actions → scan → Run workflow* con **seed = true**. A partir de ahí solo te
    llegan anuncios nuevos.
 8. El cron de GitHub es poco fiable (medido: 4 ejecuciones en 13 horas). Crea un job gratuito en
    [cron-job.org](https://cron-job.org) que dispare el workflow cada 10-15 minutos; los pasos exactos
-   están en la sección *External trigger* de arriba.
+   están en la sección *External trigger* de arriba. Los errores típicos y su solución están en
+   *Troubleshooting*.
 
 El plan de desarrollo y la investigación de cada portal están en `docs/PLAN.md`.

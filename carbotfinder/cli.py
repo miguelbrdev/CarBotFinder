@@ -16,6 +16,7 @@ from carbotfinder.http import make_client
 from carbotfinder.notify import ConsoleNotifier, Notifier
 from carbotfinder.notify.telegram import TelegramNotifier
 from carbotfinder.runner import run_once
+from carbotfinder.setup_telegram import run_setup
 from carbotfinder.state import State
 
 DEFAULT_STATE = "state/seen.sqlite"
@@ -67,6 +68,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="keep running every N seconds (for a PC/Raspberry); 0 = run once",
     )
     run.add_argument("-v", "--verbose", action="count", default=0, help="-v info, -vv debug")
+
+    setup = sub.add_parser(
+        "setup-telegram",
+        help="find your Telegram chat id, send a test message and save both values to .env",
+    )
+    setup.add_argument(
+        "--token",
+        default=None,
+        help="bot token from @BotFather (default: TELEGRAM_BOT_TOKEN or ask)",
+    )
+    setup.add_argument("--env", default=".env", help="file to write the credentials to")
+    setup.add_argument(
+        "--no-write", action="store_true", help="only print the chat id, do not touch the .env file"
+    )
+    setup.add_argument(
+        "--timeout", type=int, default=120, help="seconds to wait for your message (default 120)"
+    )
+    setup.add_argument("-v", "--verbose", action="count", default=0, help="-v info, -vv debug")
     return parser
 
 
@@ -85,7 +104,9 @@ def _run(args: argparse.Namespace) -> int:
         notifier = ConsoleNotifier()
     else:
         creds = load_telegram_credentials(config.telegram)
-        notifier = TelegramNotifier(creds.token, creds.chat_id)
+        telegram = TelegramNotifier(creds.token, creds.chat_id)
+        logging.getLogger(__name__).info("telegram ok: %s", telegram.check())
+        notifier = telegram
 
     state_path = args.state or os.environ.get("CARBOT_STATE_PATH", DEFAULT_STATE)
     seed: bool | None = True if args.seed else (False if args.no_seed else None)
@@ -109,6 +130,20 @@ def _run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _setup_telegram(args: argparse.Namespace) -> int:
+    _load_dotenv(Path(args.env))
+    token = (args.token or os.environ.get("TELEGRAM_BOT_TOKEN", "")).strip()
+    if not token:
+        token = input("Paste the bot token from @BotFather: ").strip()
+    if not token:
+        print("error: no token given", file=sys.stderr)
+        return 2
+    chat = run_setup(
+        token, env_path=None if args.no_write else Path(args.env), timeout=args.timeout
+    )
+    return 0 if chat is not None else 1
+
+
 def _force_utf8_console() -> None:
     """Windows consoles default to a legacy code page that cannot print the emoji we log."""
     for stream in (sys.stdout, sys.stderr):
@@ -125,6 +160,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "run":
             return _run(args)
+        if args.command == "setup-telegram":
+            return _setup_telegram(args)
     except CarBotError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

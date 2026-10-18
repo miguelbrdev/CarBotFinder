@@ -69,3 +69,35 @@ def test_send_retries_once_on_429(monkeypatch: pytest.MonkeyPatch) -> None:
     ]
     TelegramNotifier("T", "42").send("hola")
     assert route.call_count == 2
+
+
+@respx.mock
+def test_check_ok_reports_bot_and_chat() -> None:
+    respx.get("https://api.telegram.org/botT/getMe").mock(
+        return_value=httpx.Response(200, json={"ok": True, "result": {"username": "my_bot"}})
+    )
+    respx.get("https://api.telegram.org/botT/getChat").mock(
+        return_value=httpx.Response(200, json={"ok": True, "result": {"first_name": "Ana"}})
+    )
+    assert TelegramNotifier("T", "42").check() == "@my_bot -> Ana"
+
+
+@respx.mock
+def test_check_bad_token() -> None:
+    respx.get("https://api.telegram.org/botT/getMe").mock(
+        return_value=httpx.Response(401, json={"ok": False, "description": "Unauthorized"})
+    )
+    with pytest.raises(NotifyError, match="rejected the bot token"):
+        TelegramNotifier("T", "42").check()
+
+
+@respx.mock
+def test_check_bad_chat() -> None:
+    respx.get("https://api.telegram.org/botT/getMe").mock(
+        return_value=httpx.Response(200, json={"ok": True, "result": {"username": "b"}})
+    )
+    respx.get("https://api.telegram.org/botT/getChat").mock(
+        return_value=httpx.Response(400, json={"ok": False, "description": "chat not found"})
+    )
+    with pytest.raises(NotifyError, match=r"chat not found .*TELEGRAM_CHAT_ID"):
+        TelegramNotifier("T", "42").check()
