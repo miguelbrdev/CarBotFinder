@@ -130,3 +130,6 @@ Variables de entorno: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `CARBOT_STATE_PA
   -> A5 docs. **Decisión final el mismo día: no ampliar.** Solo `setup-telegram`, comprobación de
   credenciales al arrancar `run` (`TelegramNotifier.check()`), y README con ruta completa + tabla de
   errores. Resto archivado en PLAN §9.
+- 2026-10-18 10:50 UTC: el secreto TELEGRAM_BOT_TOKEN de GitHub estaba mal (lo destapó la comprobación nueva);
+  corregido por el usuario y verificado en verde. Despliegue completo y funcionando: cron-job.org cada 15 min
+  → GitHub (4 portales) + scripts de casa (milanuncios, Autocasión).
