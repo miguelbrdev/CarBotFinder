@@ -303,10 +303,11 @@ service before using it, and keep the request volume low.
 
 ## Guía en español
 
-CarBotFinder vigila los principales portales de coches de segunda mano de España (Wallapop,
-coches.net, AutoScout24, coches.com, y desde casa también milanuncios y Autocasión) y te avisa
-por **Telegram en pocos minutos** cuando aparece un anuncio que cumple tus filtros: marca y
-modelo, años, precio máximo, kilómetros máximos, provincias que quieras evitar y tipo de vendedor.
+¿Estás buscando un coche de segunda mano en España? CarBotFinder vigila los principales
+portales (Wallapop, coches.net, AutoScout24, coches.com, y en local también milanuncios y
+Autocasión) y te avisa por **Telegram en pocos minutos** cuando aparece un anuncio que cumple
+tus filtros: marca y modelo, años, precio máximo, kilómetros máximos, provincias que quieras
+evitar y tipo de vendedor.
 
 Funciona **gratis y 24/7 en GitHub**, sin servidor, sin tarjeta y sin instalar nada en tu
 ordenador. Montarlo lleva unos pocos minutos en el navegador. Necesitas una cuenta de Telegram y
